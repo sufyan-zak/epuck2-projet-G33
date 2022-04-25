@@ -93,7 +93,7 @@ void recherche_voisins(int *queue, struct Noeud *tn[size], unsigned int nd_min, 
 	// to get the real number of links
 	for(unsigned int i = 0 ; i < size_tab_liens ; ++i)
 	{
-		if(nd->tab_liens[i] == 0)
+		if(nd->tab_liens[i] == no_link)
 		{
 			size_tab_liens = i;
 			break;
