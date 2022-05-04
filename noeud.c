@@ -5,32 +5,34 @@
  *      Author: admin
  */
 
-#include <main.h>
-#include <noeud.h>
-#include <math.h>
 
-void init_queue(int *queue,  struct Noeud *tn[size], unsigned int d)
+
+#include <math.h>
+#include <noeud.h>
+
+
+void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
 {
-	for(int j = 0 ; j < size ; ++j)
+	for(int j = 0 ; j < SIZE ; ++j)
 	{
 		tn[j]->access = infinite_time;
 		tn[j]->parent = no_link;
-		tn[j]->in = true;
+		tn[j]->in = 1;
 		queue[j] = j;
 	}
 
 	// i est l'indice du noeud de départ
 	tn[d]->access = 0;
-	tn[d]->in = true;
+	tn[d]->in = 1;
 	tn[d]->parent = no_link;
 	queue[d] = d;
 }
 
-void sort_queue(int *queue,  struct Noeud *tn[size])
+void sort_queue(int *queue,  struct Noeud *tn[SIZE])
 {
-	float tab_access[size];
+	float tab_access[SIZE];
 
-	for(unsigned int k =0 ; k < size ; ++k)
+	for(unsigned int k =0 ; k < SIZE ; ++k)
 	{
 		tab_access[k] = tn[queue[k]]->access;
 	}
@@ -38,7 +40,7 @@ void sort_queue(int *queue,  struct Noeud *tn[size])
 	_Bool swap = 1;
 	float tmp = 0;
 	float mem = 0;
-	for(unsigned int k = 0 ; k < size - 1 && swap; ++k)
+	for(unsigned int k = 0 ; k < SIZE - 1 && swap; ++k)
 	{
 		if(tab_access[k+1] < tab_access[k])
 		{
@@ -59,22 +61,23 @@ void sort_queue(int *queue,  struct Noeud *tn[size])
 	}
 }
 
-unsigned int find_min_access(int *queue, struct Noeud *tn[size])
+unsigned int find_min_access(int *queue, struct Noeud *tn[SIZE])
 {
-	for(unsigned int k = 0 ; k < size ; ++k)
+	for(unsigned int k = 0 ; k < SIZE ; ++k)
 	{
 		if(tn[queue[k]]->in)  return queue[k];
 	}
+	return 0;
 }
 
-void djikstra(int *queue, struct Noeud *tn[size], unsigned int deb)
+void dijkstra(int *queue, struct Noeud *tn[SIZE], unsigned int deb)
 {
 	init_queue(queue, tn, deb);
 	sort_queue(queue, tn);
 
 	unsigned int nd_min = 0;
 	unsigned int cmt_tab = 0;
-	while(cmt_tab < size)
+	while(cmt_tab < SIZE)
 	{
 		nd_min = find_min_access(queue, tn);
 
@@ -83,10 +86,11 @@ void djikstra(int *queue, struct Noeud *tn[size], unsigned int deb)
 		unsigned int size_tab_liens = sizeof(tn[nd_min]->tab_liens)/sizeof(tn[nd_min]->tab_liens[0]);
 		recherche_voisins(queue, tn, nd_min, tn[nd_min], size_tab_liens);
 	}
+
 }
 
 // update les valeurs des voisins du noeud, s'ils sont plus proches
-void recherche_voisins(int *queue, struct Noeud *tn[size], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
+void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
 
