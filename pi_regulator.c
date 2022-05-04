@@ -57,7 +57,7 @@ int16_t pi_regulator(float distance, float goal){
 		sum_error = -MAX_SUM_ERROR;
 	}
 
-	speed = 0.3 * error + 0.05 * sum_error + 0.5*sum_derivative;
+	speed = 1 * error + 0.05 * sum_error + 0.4*sum_derivative;
 	old_error = error;
     return (int16_t)speed;
 }
