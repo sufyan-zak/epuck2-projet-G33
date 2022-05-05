@@ -13,10 +13,15 @@
 #include <lecture.h>
 
 
-#define OBSTACLE_DIST 20
+#define OBSTACLE_DIST 50
 #define SAFETY_DIST_IR_3 600
 #define SAFETY_DIST_IR_2 230
+
 #define S_TIME_PID       0.01
+#define S_FILTER_PID 5*S_TIME_PID
+#define KD_PID 0.5
+#define KI_PID 0.05
+#define KP_PID 0.5
 
 static _Bool dijsktra_done = 0;
 static enum state{free_path,obstacle,obstacle_around};
@@ -49,7 +54,7 @@ int16_t pi_regulator(float distance, float goal){
 	}
 
 	sum_error += error;
-    sum_derivative = ((sum_derivative*S_TIME_PID*5)+0.5*(error-old_error))/(S_TIME_PID*6);
+    sum_derivative = ((sum_derivative*S_FILTER_PID)+0.5*(error-old_error))/(S_TIME_PID+S_FILTER_PID);
 	//we set a maximum and a minimum for the sum to avoid an uncontrolled growth
 	if(sum_error > MAX_SUM_ERROR){
 		sum_error = MAX_SUM_ERROR;
@@ -57,7 +62,7 @@ int16_t pi_regulator(float distance, float goal){
 		sum_error = -MAX_SUM_ERROR;
 	}
 
-	speed = 1 * error + 0.05 * sum_error + 0.4*sum_derivative;
+	speed = KP_PID * error + KI_PID * sum_error + KD_PID * sum_derivative;
 	old_error = error;
     return (int16_t)speed;
 }
@@ -92,7 +97,8 @@ static THD_FUNCTION(PiRegulator, arg) {
         speed_correction_obstacle_1 =  pi_regulator(get_prox(2),SAFETY_DIST_IR_3);
         speed_correction_obstacle_2 =  pi_regulator(get_prox(1),SAFETY_DIST_IR_2);
 
-        //speed_correction_obstacle_d = pi_regulator(get_prox(1),SAFETY_DIST);
+
+       // speed_correction_obstacle_d = pi_regulator(get_prox(1),SAFETY_DIST);
 
         //if the line is nearly in front of the camera, don't rotate
        if(abs(speed_correction) < ROTATION_THRESHOLD){
@@ -104,30 +110,57 @@ static THD_FUNCTION(PiRegulator, arg) {
         if(abs(speed_correction_obstacle_2) < ROTATION_THRESHOLD){
               	speed_correction_obstacle_2 = 0;
             }
-        right_motor_set_speed(800 + speed_correction_obstacle_1 + speed_correction_obstacle_2);
-	     left_motor_set_speed(800- speed_correction_obstacle_1 - speed_correction_obstacle_2 );
+       /* right_motor_set_speed(800 + speed_correction_obstacle_1 + speed_correction_obstacle_2);
+	     left_motor_set_speed(800- speed_correction_obstacle_1 - speed_correction_obstacle_2 );*/
 
-    	chprintf((BaseSequentialStream *)&SD3, "tof_distance = %d IR_distance1 = %d IR_distance2 = %d \n \r", tof_distance, IR_distance, IR_distance_d);
+    	//chprintf((BaseSequentialStream *)&SD3, "tof_distance = %d IR_distance1 = %d IR_distance2 = %d \n \r", tof_distance, IR_distance, IR_distance_d);
 
-   		/* if ((tof_distance > OBSTACLE_DIST && current_state == free_path)){
-   			right_motor_set_speed(300);
-   			left_motor_set_speed(300);
+   		 if ((tof_distance > OBSTACLE_DIST && current_state == free_path)){
+   			right_motor_set_speed(500 - ROTATION_COEFF * speed_correction);
+   			 left_motor_set_speed(500 + ROTATION_COEFF * speed_correction);
+   			if (dijsktra_done){
+
+        int test[10] = {0};
+         get_path(test);
+        	if (get_red_stop())
+        	{
+
+        		actual_direction = crossroad_instruction(test,get_size_path(), get_end_node());
+        		if (actual_direction==left) crossroad_turn_left();
+        		if (actual_direction==right) crossroad_turn_right();
+        		if (actual_direction==forward) crossroad_forward();
+        		if (actual_direction==stop) {
+        				right_motor_set_speed(0);
+        			  left_motor_set_speed(0);
+        		}
+        	}else{
+        		right_motor_set_speed(500 - ROTATION_COEFF * speed_correction);
+        		left_motor_set_speed(500 + ROTATION_COEFF * speed_correction);
+        	}
+
    			current_state = free_path;
    		}
+
+   		 }
    		else if (tof_distance < OBSTACLE_DIST &&  current_state == free_path && tof_distance > 2  ){
     		right_motor_set_speed(0);
     		left_motor_set_speed(0);
-    		motor_turn_left();
+    		motor_turn_half();
+    		while(motor_position_reached() != POSITION_REACHED);
+    		motor_advance_cm(3,3,-500,-500);
+    		while(motor_position_reached() != POSITION_REACHED);
+    		motor_turn_right();
     		while(motor_position_reached() != POSITION_REACHED);
     	   	//motor_advance_cm(2, 2, 300, 300);
     		//while(motor_position_reached() != POSITION_REACHED);
     		current_state = obstacle_around;
     	}
    		if (current_state == obstacle_around){
-   	        right_motor_set_speed(300 + speed_correction_obstacle);
-   	        left_motor_set_speed(300- speed_correction_obstacle);
+   			right_motor_set_speed(500 + speed_correction_obstacle_1 + speed_correction_obstacle_2);
+   		    left_motor_set_speed(500- speed_correction_obstacle_1 - speed_correction_obstacle_2 );
    		}
-*/
+
+
         //applies the speed from the PI regulator and the correction for the rotation
 		//right_motor_set_speed(speed - ROTATION_COEFF * speed_correction);
 		//left_motor_set_speed(speed + ROTATION_COEFF * speed_correction);
@@ -150,14 +183,15 @@ static THD_FUNCTION(PiRegulator, arg) {
         			  left_motor_set_speed(0);
         		}
         	}else{
-        		right_motor_set_speed(300- ROTATION_COEFF * speed_correction);
-        		left_motor_set_speed(300+ ROTATION_COEFF * speed_correction);
+        		right_motor_set_speed(300 - ROTATION_COEFF * speed_correction);
+        		left_motor_set_speed(300 + ROTATION_COEFF * speed_correction);
         	}
  }*/
 
         chThdSleepUntilWindowed(time, time + MS2ST(10));
     }
-}
+    }
+
 
 void pi_regulator_start(void){
 	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
