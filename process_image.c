@@ -8,11 +8,15 @@
 
 #include <process_image.h>
 
-static int test = 4;
+#define BLACK_H_LINE_AVERAGE 30
+#define BLUE_LINE_AVERAGE 60
+
 static float distance_cm = 0;
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static _Bool red_stop = 0;
 static uint16_t line_width = 0;
+static int horizontal_line = 0;
+static _Bool check_test = 0;
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
@@ -33,7 +37,7 @@ uint16_t extract_line_width(uint8_t *buffer){
 		mean += buffer[i];
 	}
 	mean /= IMAGE_BUFFER_SIZE;
-test =5;
+
 	do{
 		wrong_line = 0;
 		//search for a begin
@@ -67,7 +71,7 @@ test =5;
 		    {
 		        line_not_found = 1;
 		    }
-		}else if (end-begin>350){
+		}else if (end-begin>300){
 			line_not_found = 1;
 		}
 		else//if no begin was found
@@ -95,11 +99,7 @@ test =5;
 	}
 
 	//sets a maximum width or returns the measured width
-	if((PXTOCM/width) > MAX_DISTANCE){
-		return PXTOCM/MAX_DISTANCE;
-	}else{
-		return width;
-	}
+	return line_not_found;
 }
 
 static THD_WORKING_AREA(waCaptureImage, 256);
@@ -109,7 +109,7 @@ static THD_FUNCTION(CaptureImage, arg) {
     (void)arg;
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
-	po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+	po8030_advanced_config(FORMAT_RGB565, 0, 200, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
@@ -125,7 +125,7 @@ static THD_FUNCTION(CaptureImage, arg) {
 }
 
 
-static THD_WORKING_AREA(waProcessImage, 2048);
+static THD_WORKING_AREA(waProcessImage, 4096);
 static THD_FUNCTION(ProcessImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
@@ -152,21 +152,20 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//chprintf((BaseSequentialStream *)&SD3, "time = %d \n", (img_buff_ptr[i+1]&0x1F) << 3);
 		}
 
-
-
-
 		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(image_red);
+		//lineWidth = extract_line_width(image_blue);
 
 		//converts the width into a distance between the robot and the camera
-		if(lineWidth){
-			check_red_stop(image_red,image_blue);
-			distance_cm = PXTOCM/lineWidth;
+		check_red_stop(image_red,image_blue);
+
+		if(check_test)
+		{
+			check_black_h_line(image_red);
 		}
 
 		if(send_to_computer){
 			//sends to the computer the image
-			//SendUint8ToComputer(image_red, IMAGE_BUFFER_SIZE);
+			SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
@@ -185,38 +184,81 @@ void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
+
 _Bool get_red_stop(void){
 	return red_stop;
 }
+
 void reset_red_stop(void){
 	red_stop=0;
 }
+
 void set_red_stop(void){
 	red_stop =1;
 }
+
 void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
+
+
 	uint16_t mean = 0;
-	uint32_t mean_line = 0;
+	uint32_t mean_line_red = 0;
+	uint32_t mean_line_blue = 0;
+	int line_not_found = extract_line_width(blue_image);
 	uint16_t begin_line = line_position - line_width/2;
 	uint16_t end_line = line_position + line_width/2;
-	uint8_t *diff_image = red_image-blue_image;
+
 	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++)
 	{
 		mean += red_image[i];
-
 	}
 
-		mean /= IMAGE_BUFFER_SIZE;
+	mean /= IMAGE_BUFFER_SIZE;
 
-	for(uint16_t i = begin_line; i <end_line ; ++i)
+	for(uint16_t i = begin_line; i < end_line ; ++i)
 	{
-					mean_line += red_image[i];
+		mean_line_red += red_image[i];
+		mean_line_blue += blue_image[i];
 	}
+	mean_line_red /= (end_line-begin_line);
+	mean_line_blue /= (end_line-begin_line);
 
-				mean_line /= end_line-begin_line;
-	if(mean_line>mean){
+	if(mean_line_red > mean*1.2 && !line_not_found && mean_line_blue < BLUE_LINE_AVERAGE){
 		red_stop = 1;
 	}
+}
 
+void check_black_h_line(uint8_t *red_image){
+	uint16_t mean  = 0;
+
+	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++)
+	{
+			mean += red_image[i];
+	}
+	mean /= IMAGE_BUFFER_SIZE;
+
+	if (mean < BLACK_H_LINE_AVERAGE)
+	{
+		horizontal_line = 1;
+	}
 
 }
+
+int get_horizontal_line(void){
+	return horizontal_line;
+}
+
+void reset_horizontal_line(void){
+	horizontal_line=0;
+}
+
+void set_horizontal_line(void){
+	horizontal_line =1;
+}
+
+void set_check_test(void){
+	check_test =1;
+}
+void reset_check_test(void){
+	check_test=0;
+}
+
