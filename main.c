@@ -8,7 +8,8 @@
 #include "memory_protection.h"
 #include <usbcfg.h>
 #include <main.h>
-#include <motors.h>
+
+#include <motors_custom.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <sensors/proximity.h>
 #include <camera/po8030.h>
@@ -46,30 +47,15 @@ static void serial_start(void)
 
 int main(void)
 {
-
-    halInit();
-    chSysInit();
-    //mpu_init();
-
-    //starts the serial communication
-    serial_start();
-    //start the USB communication
-    usb_start();
-    //starts the camera
-    dcmi_start();
-	po8030_start();
-	//inits the motors
-	motors_init();
-	//move 20cm forward at 5cm/s
-    messagebus_init(&bus,&bus_lock,&bus_condvar);
-	proximity_start();
-	//struct Noeud *tn[NB_NODES] = lecture_ville();
+	peripherals_init();
 	//stars the threads for the pi regulator and the processing of the image
 	pi_regulator_start();
 	process_image_start();
-	VL53L0X_start();
+
+	//Calculates the shortest paths from every node to another
 	do_djikstra();
 	set_dijsktra_done();
+
 	//calibrate_ir();
 
 
@@ -84,6 +70,30 @@ int main(void)
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 
+void peripherals_init(void){
+
+    halInit();
+    chSysInit();
+
+    //starts the serial communication
+    serial_start();
+
+    //start the USB communication
+    usb_start();
+
+    //starts the camera
+    dcmi_start();
+	po8030_start();
+
+	//inits the motors
+	motors_init();
+
+	//inits IR and ToF sensors
+    messagebus_init(&bus,&bus_lock,&bus_condvar);
+	proximity_start();
+	VL53L0X_start();
+
+}
 void __stack_chk_fail(void)
 {
     chSysHalt("Stack smashing detected");

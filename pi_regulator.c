@@ -13,7 +13,7 @@
 #include <process_image.h>
 #include <lecture.h>
 
-
+#define MIN_TOF_DIST 2
 #define OBSTACLE_DIST 70
 #define SAFETY_DIST_IR_3 600
 #define SAFETY_DIST_IR_2 230
@@ -35,12 +35,10 @@ static enum orientation current_orientation = east;
 static enum state current_state= free_path;
 static enum direction actual_direction = start;
 static unsigned int city_line_size =3;
-int16_t speed_correction = 0;
+int16_t speed_correction_line = 0;
 
-static _Bool testo = 1;
-
-//simple PI regulator implementation
-int16_t pi_regulator(float distance, float goal){
+//simple PID regulator implementation, used to avoid the obstacle
+int16_t pid_regulator(float distance, float goal){
 
 	float error = 0;
 	float speed = 0;
@@ -50,7 +48,7 @@ int16_t pi_regulator(float distance, float goal){
 	static float sum_derivative = 0;
 	error = distance - goal;
 
-	//disables the PI regulator if the error is to small
+	//disables the PID regulator if the error is to small
 	//this avoids to always move as we cannot exactly be where we want and 
 	//the camera is a bit noisy
 	if(fabs(error) < ERROR_THRESHOLD){
@@ -60,7 +58,7 @@ int16_t pi_regulator(float distance, float goal){
 	sum_error += error;
     sum_derivative = ((sum_derivative*S_FILTER_PID)+0.5*(error-old_error))/(S_TIME_PID+S_FILTER_PID);
 
-	//we set a maximum and a minimum for the sum to avoid an uncontrolled growth
+	//we set a maximum and a minimum for the integrating sum to avoid an uncontrolled growth
 
 	if(sum_error > MAX_SUM_ERROR){
 		sum_error = MAX_SUM_ERROR;
@@ -81,83 +79,64 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     systime_t time;
 
-
-    int16_t speed = 0;
-    int16_t speed_correction = 0;
+    int16_t speed_correction_line_line = 0;
     int16_t speed_correction_obstacle_1 = 0;
     int16_t speed_correction_obstacle_2 = 0;
     reset_horizontal_line();
 
-
+    //to have less noise due to ambient light for the camera
+    set_body_led(1);
 
     while(1){
         time = chVTGetSystemTime();
         uint16_t tof_distance = VL53L0X_get_dist_mm()-50;
-        uint16_t IR_distance = get_prox(2);
-        uint16_t IR_distance_d = get_prox(1);
-        //computes the speed to give to the motors
-        //distance_cm is modified by the image processing thread
-        //speed = pi_regulator(get_distance_cm(), GOAL_DISTANCE);
-        //computes a correction factor to let the robot rotate to be in front of the line
-        speed_correction = (get_line_position() - (IMAGE_BUFFER_SIZE/2));
-        speed_correction_obstacle_1 =  pi_regulator(get_prox(2),SAFETY_DIST_IR_3);
-        speed_correction_obstacle_2 =  pi_regulator(get_prox(1),SAFETY_DIST_IR_2);
+        uint16_t IR3_distance = get_prox(2);
+        uint16_t IR2_distance = get_prox(1);
 
-
-       // speed_correction_obstacle_d = pi_regulator(get_prox(1),SAFETY_DIST);
+        //computes a correction factor to let the robot rotate to be centered with the line
+        speed_correction_line = (get_line_position() - (IMAGE_BUFFER_SIZE/2));
 
         //if the line is nearly in front of the camera, don't rotate
-       if(abs(speed_correction) < ROTATION_THRESHOLD){
-        	speed_correction = 0;
-        }
-        if(abs(speed_correction_obstacle_1) < ROTATION_THRESHOLD){
+       if(abs(speed_correction_line) < ROTATION_THRESHOLD){
+
+        	speed_correction_line = 0;
+       }
+       if(abs(speed_correction_obstacle_1) < ROTATION_THRESHOLD){
+
         	speed_correction_obstacle_1 = 0;
-               }
-        if(abs(speed_correction_obstacle_2) < ROTATION_THRESHOLD){
-              	speed_correction_obstacle_2 = 0;
-            }
-       set_body_led(1);
+       }
+       if(abs(speed_correction_obstacle_2) < ROTATION_THRESHOLD){
 
-      /* right_motor_set_speed(DEFAULT_SPEED - ROTATION_COEFF * speed_correction);
-        left_motor_set_speed(DEFAULT_SPEED + ROTATION_COEFF * speed_correction);
-         if (get_red_stop())
-                	{
-        	right_motor_set_speed(0);
-            left_motor_set_speed(0);
-                	}*/
-//chprintf((BaseSequentialStream *)&SD3, "tof_distance = %d IR_distance1 = %d IR_distance2 = %d \n \r", tof_distance, IR_distance, IR_distance_d);
-/*if (test){
-	motor_advance_cm(2,2,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
-		test=0;
-	}*/
+            speed_correction_obstacle_2 = 0;
+       }
 
+      //enters one of the ifs according to the state of the robot
+      if (tof_distance > OBSTACLE_DIST && current_state == free_path && dijsktra_done){
+		int node_path[10] = {0};
+		//copies the path table calculated by djikstra into "node_path"
+		get_path(node_path);
 
+		//enters the if when the camera spots a red line
+		if (get_red_stop()){
 
+			actual_direction = crossroad_instruction(node_path,get_size_path(), get_end_node());
+			actual_direction=stop;
+			if (actual_direction==left) crossroad_turn_left();
+			if (actual_direction==right) crossroad_turn_right();
+			if (actual_direction==forward) crossroad_forward();
+			if (actual_direction==stop) {
 
- 	if ((tof_distance > OBSTACLE_DIST && current_state == free_path)){
-   		if (dijsktra_done){
-			int test[10] = {0};
-			get_path(test);
-			if (get_red_stop())
-        	{
-				actual_direction = crossroad_instruction(test,get_size_path(), get_end_node());
-				actual_direction=stop;
-        		if (actual_direction==left) crossroad_turn_left();
-        		if (actual_direction==right) crossroad_turn_right();
-        		if (actual_direction==forward) crossroad_forward();
-        		if (actual_direction==stop) {
-        			right_motor_set_speed(0);
-        			left_motor_set_speed(0);
-        		}
-        	}else{
-        		right_motor_set_speed(DEFAULT_SPEED - ROTATION_COEFF * speed_correction);
-        		left_motor_set_speed(DEFAULT_SPEED + ROTATION_COEFF * speed_correction);
-        	}
+				right_motor_set_speed(0);
+				left_motor_set_speed(0);
+			}
+		}else{
 
-   			current_state = free_path;
-   		}
-   	}
-   	else if (tof_distance < OBSTACLE_DIST &&  current_state == free_path && tof_distance > 2  ){
+			right_motor_set_speed(DEFAULT_SPEED - ROTATION_COEFF * speed_correction_line);
+			left_motor_set_speed(DEFAULT_SPEED + ROTATION_COEFF * speed_correction_line);
+		}
+		current_state = free_path;
+     }
+     else if (tof_distance < OBSTACLE_DIST &&  current_state == free_path && tof_distance > MIN_TOF_DIST){
     	right_motor_set_speed(0);
     	left_motor_set_speed(0);
     	motor_turn_half();
@@ -165,24 +144,32 @@ static THD_FUNCTION(PiRegulator, arg) {
     	motor_turn_right();
     	reset_horizontal_line();
     	current_state = obstacle_around;
-    }
-   	else if (current_state == obstacle_around){
+     }
+     else if (current_state == obstacle_around){
    		set_check_test();
+
+        //computes the correction factor to let the robot stay at a safety distance from the obstacle
+        speed_correction_obstacle_1 =  pid_regulator(IR3_distance,SAFETY_DIST_IR_3);
+        speed_correction_obstacle_2 =  pid_regulator(IR2_distance,SAFETY_DIST_IR_2);
+
    		right_motor_set_speed(DEFAULT_SPEED + speed_correction_obstacle_1 + speed_correction_obstacle_2);
    	    left_motor_set_speed(DEFAULT_SPEED - speed_correction_obstacle_1 - speed_correction_obstacle_2 );
-   	 chprintf((BaseSequentialStream *)&SD3, "time = %d \n \r", get_horizontal_line());
-   	 if(get_horizontal_line()){
+
+   	    //enters the if when the robot spots a horizontal black line meaning it finished avoiding the obstacle
+   	    if(get_horizontal_line()){
+   	    	//aligns the wheels with the black line and turns so it follows it again
 			motor_advance_cm(4,4,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
 			motor_turn_left();
 			motor_advance_cm(0.5,0.5,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
 
 			reset_horizontal_line();
+
 			current_state = free_path;
    	    }
-   	}
-        chThdSleepUntilWindowed(time, time + MS2ST(10));
-    }
-    }
+     }
+    chThdSleepUntilWindowed(time, time + MS2ST(10));
+  }
+}
 
 
 
@@ -214,7 +201,6 @@ void set_dijsktra_done(void){
 }
 
 int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int get_end_node){
-
 	int i  = get_size_path;
 	while(i>=0){
 		if(path[i] == actual_node)	 {
@@ -223,7 +209,6 @@ int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int
 		}
 		--i;
 	}
-
 
 	if(i < 0) {
 		actual_direction = stop;
@@ -264,7 +249,7 @@ int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int
 		      else if(path[i] == actual_node - 1)	{
 		    	  current_orientation = west;
 		    	  actual_direction = right;
-		    	  actual_node =  path[i];
+		    	  actual_node = path[i];
 		    	  return right;
 		      }
 		 }
@@ -306,10 +291,8 @@ int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int
 		    	  actual_node =  path[i];
 		    	  return right;
 		      }
-
-
 		}
-
 	}
-
+	//actual_direction = stop;
+	//return stop;
 }

@@ -17,11 +17,12 @@ static _Bool red_stop = 0;
 static uint16_t line_width = 0;
 static int horizontal_line = 0;
 static _Bool check_test = 0;
+
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
 /*
- *  Returns the line's width extracted from the image buffer given
+ *  Returns 1 if there is a line extracted from the image buffer given
  *  Returns 0 if line not found
  */
 uint16_t extract_line_width(uint8_t *buffer){
@@ -92,13 +93,12 @@ uint16_t extract_line_width(uint8_t *buffer){
 	if(line_not_found){
 		begin = 0;
 		end = 0;
-		line_width = width = last_width;
+		line_width =  last_width;
 	}else{
-		line_width = last_width = width = (end - begin);
+		line_width = last_width = (end - begin);
 		line_position = (begin + end)/2; //gives the line position.
 	}
 
-	//sets a maximum width or returns the measured width
 	return line_not_found;
 }
 
@@ -108,7 +108,7 @@ static THD_FUNCTION(CaptureImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
+	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 200 + 201 (minimum 2 lines because reasons)
 	po8030_advanced_config(FORMAT_RGB565, 0, 200, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
@@ -140,40 +140,39 @@ static THD_FUNCTION(ProcessImage, arg) {
     while(1){
     	//waits until an image has been captured
         chBSemWait(&image_ready_sem);
+
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
-		//Extracts only the red pixels
+		//extracts the red  and the blue
 		for(uint16_t i = 0 ; i <  IMAGE_BUFFER_SIZE ; i++){
-			//extracts first 5bits of the first byte
-			//takes nothing from the second byte
+			//extracts last 5bits of the second byte for the blue pixels
+			//takes nothing from the first byte
 			image_blue[i] = (img_buff_ptr[2*i+1]&0x1F) << 3;
+
+			//extracts first 5bits of the first byte for the red pixels
+			//takes nothing from the second byte
 			image_red[i] = (uint8_t)img_buff_ptr[2*i]&0xF8;
-			//chprintf((BaseSequentialStream *)&SD3, "time = %d \n", (img_buff_ptr[i+1]&0x1F) << 3);
 		}
 
-		//search for a line in the image and gets its width in pixels
-		//lineWidth = extract_line_width(image_blue);
-
-		//converts the width into a distance between the robot and the camera
+		//sets the value of "red_stop" if a red line is found
 		check_red_stop(image_red,image_blue);
 
-		if(check_test)
-		{
+		if(check_test){
+
+			//sets the value of "horizontal_line" if a black horizontal line is found
 			check_black_h_line(image_red);
 		}
 
 		if(send_to_computer){
+
 			//sends to the computer the image
 			SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
 		}
+
 		//invert the bool
 		send_to_computer = !send_to_computer;
     }
-}
-
-float get_distance_cm(void){
-	return distance_cm;
 }
 
 uint16_t get_line_position(void){
@@ -199,45 +198,50 @@ void set_red_stop(void){
 
 void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 
-
-	uint16_t mean = 0;
+	uint16_t mean_red = 0;
 	uint32_t mean_line_red = 0;
 	uint32_t mean_line_blue = 0;
 	int line_not_found = extract_line_width(blue_image);
-	uint16_t begin_line = line_position - line_width/2;
-	uint16_t end_line = line_position + line_width/2;
+	uint16_t begin_line = IMAGE_BUFFER_SIZE/2 - line_width/2;
+	uint16_t end_line = IMAGE_BUFFER_SIZE/2 + line_width/2;
 
-	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++)
-	{
-		mean += red_image[i];
+	//computes the mean of the overall red intensity
+	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+
+		mean_red += red_image[i];
 	}
+	mean_red /= IMAGE_BUFFER_SIZE;
 
-	mean /= IMAGE_BUFFER_SIZE;
+	//computes the mean of the red and the blue pixels only
+	//where the line is supposed to be
+	for(uint16_t i = begin_line; i < end_line ; ++i){
 
-	for(uint16_t i = begin_line; i < end_line ; ++i)
-	{
 		mean_line_red += red_image[i];
 		mean_line_blue += blue_image[i];
 	}
 	mean_line_red /= (end_line-begin_line);
 	mean_line_blue /= (end_line-begin_line);
 
-	if(mean_line_red > mean*1.2 && !line_not_found && mean_line_blue < BLUE_LINE_AVERAGE){
+	//enters the if only when a line is found, the red intensity mean of the line is higher
+	//than the overall mean, and the blue line mean is low
+	if(mean_line_red > mean_red*1.2 && !line_not_found && mean_line_blue < BLUE_LINE_AVERAGE){
+
 		red_stop = 1;
 	}
 }
 
 void check_black_h_line(uint8_t *red_image){
+
 	uint16_t mean  = 0;
 
-	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++)
-	{
+	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+
 			mean += red_image[i];
 	}
 	mean /= IMAGE_BUFFER_SIZE;
 
-	if (mean < BLACK_H_LINE_AVERAGE)
-	{
+	if (mean < BLACK_H_LINE_AVERAGE){
+
 		horizontal_line = 1;
 	}
 

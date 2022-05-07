@@ -8,14 +8,15 @@ extern "C" {
 #include "camera/dcmi_camera.h"
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
+#include <motors.h>
 
 
 //constants for the differents parts of the project
 #define IMAGE_BUFFER_SIZE		640
-#define WIDTH_SLOPE				5
+#define WIDTH_SLOPE				10
 #define MIN_LINE_WIDTH			40
 #define ROTATION_THRESHOLD		10
-#define ROTATION_COEFF			1.5
+#define ROTATION_COEFF			2
 #define PXTOCM					1570.0f //experimental value
 #define GOAL_DISTANCE 			10.0f
 #define MAX_DISTANCE 			25.0f
@@ -28,6 +29,9 @@ extern "C" {
 extern messagebus_t bus;
 
 extern parameter_namespace_t parameter_root;
+
+// starts all the peripherals used for the project
+void peripherals_init(void);
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size);
 
