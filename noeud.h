@@ -20,9 +20,6 @@ struct Noeud {
 	int in;					// Boolean value, either 0 (false) or 1 (true)
 	unsigned int parent;
 	int uid;
-	// spatial position
-	int x;
-	int y;
 };
 
 void dijkstra(int *queue,struct Noeud *tn[SIZE], unsigned int deb);
