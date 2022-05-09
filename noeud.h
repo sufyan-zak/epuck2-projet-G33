@@ -14,12 +14,15 @@
 #define default_speed 5.0
 
 struct Noeud {
+	int uid;
+
 	int tab_liens[5];		// if the number is != -1, it is a link. The number corresponds to the index in the matrix tn
-	float tab_liens_dist[5];
+	float tab_liens_dist[5]; 	// corresponds to the distance to the correspondant node in tab_liens
+
+	// variables used for Dijkstra
 	float access;
 	int in;					// Boolean value, either 0 (false) or 1 (true)
 	unsigned int parent;
-	int uid;
 };
 
 void dijkstra(int *queue,struct Noeud *tn[SIZE], unsigned int deb);
@@ -28,7 +31,5 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE]);
 unsigned int find_min_access(int *queue, struct Noeud *tn[SIZE]);
 void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens);
 float temps_lien(struct Noeud* a, struct Noeud* b);
-float norme(float x, float y);
-
 
 #endif /* NOEUD_H_ */
