@@ -12,25 +12,25 @@ static int path[10]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 void do_djikstra(void) {
 	
-	     struct Noeud nd1 = {.uid=0, .x = 0, .y = 0, .tab_liens={1, no_link}};				// ON MET L'UID DES NOEUDS DANS TAB_LIENS. CET UID CORRESPOND AUSSI A L'INDICE DANS TN
-	    struct Noeud nd2 = {.uid=1, .x = 30, .y = 0, .tab_liens={0,2,4, no_link}};
-	     struct Noeud nd3 = {.uid=2, .x = 50, .y = 0, .tab_liens={1,5, no_link} };
-	     struct Noeud nd4 = {.uid=3, .x = 0, .y = 4, .tab_liens={4,6, no_link} };
-	    struct Noeud nd5 = {.uid=4, .x = 7, .y = 4, .tab_liens={1,3, 5, no_link} };
-	     struct Noeud nd6 = {.uid=5, .x = 10, .y = 4, .tab_liens={2,4,no_link} };
-	     struct Noeud nd7 = {.uid=6, .x = 0, .y = 100, .tab_liens={3, no_link} };
-	     struct Noeud nd8 = {.uid=7, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd9 = {.uid=8, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd10 = {.uid=9, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd11 = {.uid=10, .x = 0, .y = 100, .tab_liens={no_link} };
-	     struct Noeud nd12 = {.uid=11, .x = 0, .y = 100, .tab_liens={ no_link} };
+	     struct Noeud nd1 = {.uid=0, .x = 0, .y = 0, .tab_liens={1, 5, no_link}};				// ON MET L'UID DES NOEUDS DANS TAB_LIENS. CET UID CORRESPOND AUSSI A L'INDICE DANS TN
+	    struct Noeud nd2 = {.uid=1, .x = 40, .y = -9, .tab_liens={0,2,6, no_link}};
+	     struct Noeud nd3 = {.uid=2, .x = 49, .y = -9, .tab_liens={1,3, 7, no_link} };
+	     struct Noeud nd4 = {.uid=3, .x = 59, .y = -9, .tab_liens={2,8, no_link} };
+	    struct Noeud nd5 = {.uid=4, .x = 100, .y = -9, .tab_liens={no_link} };
+	     struct Noeud nd6 = {.uid=5, .x = 0, .y = 40, .tab_liens={0, 6, 10,no_link} };
+	     struct Noeud nd7 = {.uid=6, .x = 70, .y = 40, .tab_liens={1, 5, 7, 11, no_link} };
+	     struct Noeud nd8 = {.uid=7, .x = 77, .y = 40, .tab_liens={2, 6, no_link} };
+	     struct Noeud nd9 = {.uid=8, .x = 59, .y = 15, .tab_liens={3, 13, no_link} };
+	     struct Noeud nd10 = {.uid=9, .x = 100, .y = 100, .tab_liens={no_link} };
+	     struct Noeud nd11 = {.uid=10, .x = , .y = 47, .tab_liens={5, 11, 15, no_link} };
+	     struct Noeud nd12 = {.uid=11, .x = 65, .y = 47, .tab_liens={6, 10, 16, no_link} };
 	     struct Noeud nd13 = {.uid=12, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd14 = {.uid=13, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd15 = {.uid=14, .x = 0, .y = 100, .tab_liens={no_link} };
-	     struct Noeud nd16 = {.uid=15, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd17 = {.uid=16, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd18 = {.uid=17, .x = 0, .y = 100, .tab_liens={ no_link} };
-	     struct Noeud nd19 = {.uid=18, .x = 0, .y = 100, .tab_liens={ no_link} };
+	     struct Noeud nd14 = {.uid=13, .x = 59, .y = 40, .tab_liens={8, 14, 18, no_link} };
+	     struct Noeud nd15 = {.uid=14, .x = 67, .y = 40, .tab_liens={13, no_link} };
+	     struct Noeud nd16 = {.uid=15, .x = 0, .y = 100, .tab_liens={10, 16, no_link} };
+	     struct Noeud nd17 = {.uid=16, .x = 0, .y = 100, .tab_liens={11, 15, 17, no_link} };
+	     struct Noeud nd18 = {.uid=17, .x = 0, .y = 100, .tab_liens={16, 18, no_link} };
+	     struct Noeud nd19 = {.uid=18, .x = 0, .y = 100, .tab_liens={13, 17, no_link} };
 	     struct Noeud nd20 = {.uid=19, .x = 0, .y = 100, .tab_liens={ no_link} };
 	     struct Noeud nd21 = {.uid=20, .x = 0, .y = 100, .tab_liens={ no_link} };
 	     struct Noeud nd22 = {.uid=21, .x = 0, .y = 100, .tab_liens={ no_link} };
