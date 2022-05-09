@@ -7,7 +7,7 @@
 
 static unsigned int size_path = 0;
 static unsigned int start_node = 0;
-static unsigned int end_node = 6;
+static unsigned int end_node = 15;
 static int path[10]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 void do_djikstra(void) {
