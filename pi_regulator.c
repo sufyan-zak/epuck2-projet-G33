@@ -26,7 +26,7 @@
 #define KI_PID 0.05
 #define KP_PID 0.7
 
-static _Bool dijsktra_done = 0;
+
 static enum state{free_path,obstacle,obstacle_around};
 static enum direction{start,right, left, forward, stop};
 static enum orientation{east, south, west, north};
@@ -35,7 +35,7 @@ static enum orientation current_orientation = east;
 static enum state current_state= free_path;
 static enum direction actual_direction = start;
 static unsigned int city_line_size =3;
-int16_t speed_correction_line = 0;
+
 
 //simple PID regulator implementation, used to avoid the obstacle
 int16_t pid_regulator(float distance, float goal){
@@ -71,21 +71,28 @@ int16_t pid_regulator(float distance, float goal){
     return (int16_t)speed;
 }
 
-static THD_WORKING_AREA(waPiRegulator, 256);
-static THD_FUNCTION(PiRegulator, arg) {
+static THD_WORKING_AREA(waPathRegulator, 4096);
+static THD_FUNCTION(PathRegulator, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
     systime_t time;
 
-    int16_t speed_correction_line_line = 0;
+    int16_t speed_correction_line = 0;
     int16_t speed_correction_obstacle_1 = 0;
     int16_t speed_correction_obstacle_2 = 0;
     reset_horizontal_line();
 
     //to have less noise due to ambient light for the camera
     set_body_led(1);
+
+	//Calculates the shortest paths from every node to another
+	do_djikstra();
+
+	//copies the path table calculated by djikstra into "node_path"
+	int node_path[10] = {0};
+	get_path(node_path);
 
     while(1){
         time = chVTGetSystemTime();
@@ -109,12 +116,12 @@ static THD_FUNCTION(PiRegulator, arg) {
 
             speed_correction_obstacle_2 = 0;
        }
-
+for (int i =0; i<10; ++i){
+	chprintf((BaseSequentialStream *)&SD3, "node =%d \n \r", node_path[i]);
+}
       //enters one of the ifs according to the state of the robot
-      if (tof_distance > OBSTACLE_DIST && current_state == free_path && dijsktra_done){
-		int node_path[10] = {0};
-		//copies the path table calculated by djikstra into "node_path"
-		get_path(node_path);
+      if (tof_distance > OBSTACLE_DIST && current_state == free_path){
+
 
 		//enters the if when the camera spots a red line
 		if (get_red_stop()){
@@ -173,8 +180,8 @@ static THD_FUNCTION(PiRegulator, arg) {
 
 
 
-void pi_regulator_start(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+void path_regulator_start(void){
+	chThdCreateStatic(waPathRegulator, sizeof(waPathRegulator), NORMALPRIO, PathRegulator, NULL);
 }
 
 void crossroad_turn_right(void){
@@ -194,10 +201,6 @@ void crossroad_turn_left(void){
 void crossroad_forward(void){
    	motor_advance_cm(15, 15, DEFAULT_SPEED_CM, DEFAULT_SPEED_CM);
 	reset_red_stop();
-}
-
-void set_dijsktra_done(void){
-	dijsktra_done = 1;
 }
 
 int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int get_end_node){

@@ -1,10 +1,9 @@
 #ifndef PI_REGULATOR_H
 #define PI_REGULATOR_H
 
-//start the PI regulator thread
-void pi_regulator_start(void);
+//start the Path regulator thread
+void path_regulator_start(void);
 
-void set_dijsktra_done(void);
 
 /**
  * @brief			computes which direction to take

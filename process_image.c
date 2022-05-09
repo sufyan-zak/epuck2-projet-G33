@@ -167,7 +167,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		if(send_to_computer){
 
 			//sends to the computer the image
-			SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
+			//SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
 		}
 
 		//invert the bool

@@ -49,12 +49,10 @@ int main(void)
 {
 	peripherals_init();
 	//stars the threads for the pi regulator and the processing of the image
-	pi_regulator_start();
 	process_image_start();
+	path_regulator_start();
 
-	//Calculates the shortest paths from every node to another
-	do_djikstra();
-	set_dijsktra_done();
+
 
 	//calibrate_ir();
 

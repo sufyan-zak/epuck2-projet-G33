@@ -7,7 +7,7 @@
 #include <noeud.h>
 #ifndef LECTURE_H_
 #define LECTURE_H_
-#define NB_NODES 7
+#define NB_NODES SIZE
 
 void do_djikstra(void);
 unsigned int get_size_path(void);

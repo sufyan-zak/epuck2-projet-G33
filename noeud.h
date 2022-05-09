@@ -10,7 +10,7 @@
 
 #define no_link  -1
 #define infinite_time  100000000000
-#define SIZE 7
+#define SIZE 25
 #define default_speed 5.0
 
 struct Noeud {
