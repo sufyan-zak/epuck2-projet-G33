@@ -21,7 +21,7 @@ void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
 		queue[j] = j;
 	}
 
-	// i est l'indice du noeud de départ
+	// i est l'indice du noeud de dÃ©part
 	tn[d]->access = 0;
 	tn[d]->in = 1;
 	tn[d]->parent = no_link;
@@ -56,7 +56,7 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE])
 				queue[k] = mem;
 				if(k != 0 )  --k;
 			}
-			//swap = 0;				Pourquoi y avait ça ?! L'algo marche bien si on enlève cette ligne. De l'opti ? Surement.
+			//swap = 0;				Pourquoi y avait Ã§a ?! L'algo marche bien si on enlÃ¨ve cette ligne. De l'opti ? Surement.
 		}
 	}
 }
@@ -121,12 +121,17 @@ void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, 
 
 float temps_lien(struct Noeud* a, struct Noeud* b)
 {
-	float dist = norme(a->x - b->x, a->y - b->y);
+	_Bool stop = 0;
+	int i = 0;
+	float dist = 0;
+
+	while(!stop && i < 5) {
+		if(a->tab_liens[i] == b->uid) {
+			stop = 1;
+			dist = a->tab_liens_dist[i];
+		}
+		++i;
+	}
 
 	return dist/default_speed;
-}
-
-float norme(float x, float y)
-{
-	return sqrt(x*x + y*y);
 }
