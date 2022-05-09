@@ -14,7 +14,8 @@
 #define default_speed 5.0
 
 struct Noeud {
-	int tab_liens[5];		// if the number is != 0, it is a link. The number corresponds to the index in the matrix tn
+	int tab_liens[5];		// if the number is != -1, it is a link. The number corresponds to the index in the matrix tn
+	float tab_liens_dist[5];
 	float access;
 	int in;					// Boolean value, either 0 (false) or 1 (true)
 	unsigned int parent;
