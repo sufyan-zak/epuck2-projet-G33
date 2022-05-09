@@ -1,15 +1,11 @@
-/*
- * noeud.c
- *
- *  Created on: 21 avr. 2022
- *      Author: admin
+/**
+ * @file    noeud.c
+ * @brief   Implementation of Dijkstra algorithm, as well as of subfunctions
+ * 			used in it.
  */
-
-
 
 #include <math.h>
 #include <noeud.h>
-
 
 void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
 {
@@ -21,7 +17,7 @@ void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
 		queue[j] = j;
 	}
 
-	// i est l'indice du noeud de départ
+	// d is the index of the start node
 	tn[d]->access = 0;
 	tn[d]->in = 1;
 	tn[d]->parent = no_link;
@@ -56,7 +52,7 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE])
 				queue[k] = mem;
 				if(k != 0 )  --k;
 			}
-			//swap = 0;				Pourquoi y avait ça ?! L'algo marche bien si on enlève cette ligne. De l'opti ? Surement.
+			swap = 0;
 		}
 	}
 }
@@ -89,7 +85,7 @@ void dijkstra(int *queue, struct Noeud *tn[SIZE], unsigned int deb)
 
 }
 
-// update les valeurs des voisins du noeud, s'ils sont plus proches
+// updates the values of neighbour nodes if they are closer
 void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
@@ -119,6 +115,7 @@ void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, 
 
 }
 
+// calculates the time it takes to cross a link
 float temps_lien(struct Noeud* a, struct Noeud* b)
 {
 	_Bool stop = 0;
