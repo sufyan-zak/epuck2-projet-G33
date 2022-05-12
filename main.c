@@ -14,7 +14,7 @@
 #include <sensors/proximity.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
-
+#include <spi_comm.h>
 #include <process_image.h>
 #include <lecture.h>
 #include <path_regulator.h>
@@ -51,7 +51,7 @@ int main(void)
 	//stars the threads for the pi regulator and the processing of the image
 	process_image_start();
 	path_regulator_start();
-
+	leds_toggle_start();
 	//calibrate_ir();
 
     // Infinite loop.
@@ -82,7 +82,7 @@ void peripherals_init(void){
 
 	//inits the motors
 	motors_init();
-
+    spi_comm_start();
 	//inits IR and ToF sensors
     messagebus_init(&bus,&bus_lock,&bus_condvar);
 	proximity_start();

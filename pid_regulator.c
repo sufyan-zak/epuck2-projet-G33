@@ -10,7 +10,7 @@
 #include <pid_regulator.h>
 #include <math.h>
 
-int16_t pid_regulator(float distance, float goal){
+int16_t pid_regulator(float distance, float goal, float kp, float ki, float kd){
 
 	float error = 0;
 	float speed = 0;
@@ -38,7 +38,7 @@ int16_t pid_regulator(float distance, float goal){
 		sum_error = -MAX_SUM_ERROR;
 	}
 
-	speed = KP_PID * error + KI_PID * sum_error + KD_PID * sum_derivative;
+	speed = kp * error + ki * sum_error + kd * sum_derivative;
 	old_error = error;
     return (int16_t)speed;
 }

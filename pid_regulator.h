@@ -18,7 +18,7 @@
 #define S_TIME_PID       0.01
 #define S_FILTER_PID 5*S_TIME_PID
 #define ERROR_THRESHOLD			0.1f
-#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI_PID)
+#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/3.5)
 
 /**
  * @brief			the following function calculates the speed correction given
@@ -26,6 +26,6 @@
  *
  * @return			int speed : speed correction for the regulation
  */
-int16_t pid_regulator(float distance, float goal);
+int16_t pid_regulator(float distance, float goal, float kp, float ki, float kd);
 
 #endif /* PID_REGULATOR_H_ */

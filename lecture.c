@@ -11,10 +11,10 @@
 
 static unsigned int size_path = 0;
 static unsigned int start_node = 0;
-static unsigned int end_node = 15;
+static unsigned int end_node =14;
 static int path[10]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
-void do_djikstra(void) {
+void do_djikstra(uint8_t going_back) {
 	
 		 // Initialization of the city
 	     struct Noeud nd1 = {.uid=0, .tab_liens={1, 5, no_link}, .tab_liens_dist = {40.4, 40.4, no_link}};
@@ -25,14 +25,14 @@ void do_djikstra(void) {
 	     struct Noeud nd6 = {.uid=5, .tab_liens={0, 6, 10,no_link}, .tab_liens_dist = {40.4, 69.56, 7, no_link} };
 	     struct Noeud nd7 = {.uid=6, .tab_liens={1, 5, 7, 11, no_link}, .tab_liens_dist = {58, 69.56, 6.5, 8.5, no_link} };
 	     struct Noeud nd8 = {.uid=7, .tab_liens={2, 6, no_link}, .tab_liens_dist = {37.28, 6.5, no_link} };
-	     struct Noeud nd9 = {.uid=8, .tab_liens={3, 13, no_link}, .tab_liens_dist = {15.5, 5.3, no_link} };
+	     struct Noeud nd9 = {.uid=8, .tab_liens={3, 13, no_link}, .tab_liens_dist = {15.5, 24.3, no_link} };
 	     struct Noeud nd10 = {.uid=9, .tab_liens={no_link}, .tab_liens_dist = {no_link} };
-	     struct Noeud nd11 = {.uid=10, .tab_liens={5, 11, 15, no_link}, .tab_liens_dist = {7, 48.4, 7, no_link} };
-	     struct Noeud nd12 = {.uid=11, .tab_liens={6, 10, 16, no_link}, .tab_liens_dist = {8.5, 48.4, 6.9, no_link} };
+	     struct Noeud nd11 = {.uid=10, .tab_liens={5,  15, no_link}, .tab_liens_dist = {7,  7, no_link} };
+	     struct Noeud nd12 = {.uid=11, .tab_liens={6,  16, no_link}, .tab_liens_dist = {8.5,6.9, no_link} };
 	     struct Noeud nd13 = {.uid=12, .tab_liens={ no_link}, .tab_liens_dist = {no_link} };
 	     struct Noeud nd14 = {.uid=13, .tab_liens={8, 14, 18, no_link}, .tab_liens_dist = {24.3, 8.1, 5.3, no_link} };
 	     struct Noeud nd15 = {.uid=14, .tab_liens={13, no_link}, .tab_liens_dist = {8.1, no_link} };
-	     struct Noeud nd16 = {.uid=15, .tab_liens={10, 16, no_link}, .tab_liens_dist = {7, 41.2, no_link} };
+	     struct Noeud nd16 = {.uid=15, .tab_liens={10,  no_link}, .tab_liens_dist = {7,  no_link} };
 	     struct Noeud nd17 = {.uid=16, .tab_liens={11, 15, 17, no_link}, .tab_liens_dist = {6.9, 41.2, 7, no_link} };
 	     struct Noeud nd18 = {.uid=17, .tab_liens={16, 18, no_link}, .tab_liens_dist = {7, 7.1, no_link}};
 	     struct Noeud nd19 = {.uid=18, .tab_liens={13, 17, no_link}, .tab_liens_dist = {5.3, 7.1, no_link} };
@@ -58,14 +58,28 @@ void do_djikstra(void) {
 		// This table is used in Dijkstra algorithm and is progressively updated. Closest nodes are the first nodes.
 		int queue[SIZE] = {0};
 
-		dijkstra(queue,tn,start_node);
+		if(!going_back){
+				dijkstra(queue,tn,start_node);
 
-		for(struct Noeud* p = tn[end_node] ; p->parent != no_link ; p = tn[p->parent])
-		{
-			path[size_path] = p->uid;
-			++size_path;
+				for(struct Noeud* p = tn[end_node] ; p->parent != no_link ; p = tn[p->parent])
+				{
+					path[size_path] = p->uid;
+					++size_path;
+				}
+				path[size_path] = tn[start_node]->uid;
+		}else if (going_back){
+				dijkstra(queue,tn,end_node);
+				size_path =0;
+				for(struct Noeud* p = tn[start_node] ; p->parent != no_link ; p = tn[p->parent])
+				{
+					path[size_path] = p->uid;
+					++size_path;
+				}
+				path[size_path] = tn[end_node]->uid;
+				end_node = 0;
+
 		}
-		path[size_path] = tn[start_node]->uid;
+
 
 }
 

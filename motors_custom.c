@@ -11,7 +11,7 @@
 
 #define NUMBER_STEPS_ONE_TURN 1000
 #define WHEEL_PERIMETER_CM 13
-#define DEFAULT_SPEED_CM 8
+#define DEFAULT_SPEED_CM 11
 #define ROBOT_PERIMETER M_PI*5.3
 
 void motor_advance_cm(float postion_r, float position_l , float speed_r , float speed_l ){
@@ -66,7 +66,12 @@ void motor_turn_left(void){
 	motor_advance_cm(ROBOT_PERIMETER/4,ROBOT_PERIMETER/4,DEFAULT_SPEED_CM,-DEFAULT_SPEED_CM);
 }
 
-void motor_turn_half(void){
+void motor_turn_half_right(void){
 	motor_advance_cm(ROBOT_PERIMETER/2,ROBOT_PERIMETER/2,DEFAULT_SPEED_CM,-DEFAULT_SPEED_CM);
+
+}
+
+void motor_turn_half_left(void){
+	motor_advance_cm(ROBOT_PERIMETER/2,ROBOT_PERIMETER/2,-DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
 
 }

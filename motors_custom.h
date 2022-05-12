@@ -15,5 +15,7 @@ void motor_turn_right(void);
 
 void motor_turn_left(void);
 
-void motor_turn_half(void);
+void motor_turn_half_right(void);
+
+void motor_turn_half_left(void);
 #endif /* MOTORS_CUSTOM_H_ */

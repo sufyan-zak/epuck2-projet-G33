@@ -19,7 +19,7 @@
  *
  * @return :	None
  */
-void do_djikstra(void);
+void do_djikstra(uint8_t going_back);
 
 
 

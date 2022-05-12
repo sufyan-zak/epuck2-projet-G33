@@ -11,12 +11,14 @@
 #define BLACK_H_LINE_AVERAGE 30
 #define BLUE_LINE_AVERAGE 60
 
-static float distance_cm = 0;
+
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static _Bool red_stop = 0;
 static uint16_t line_width = 0;
 static int horizontal_line = 0;
 static _Bool check_test = 0;
+static int begin;
+static int end;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -27,7 +29,7 @@ static BSEMAPHORE_DECL(image_ready_sem, TRUE);
  */
 uint16_t extract_line_width(uint8_t *buffer){
 
-	uint16_t i = 0, begin = 0, end = 0, width = 0;
+	uint16_t i = 0;
 	uint8_t stop = 0, wrong_line = 0, line_not_found = 0;
 	uint32_t mean = 0;
 
@@ -72,7 +74,7 @@ uint16_t extract_line_width(uint8_t *buffer){
 		    {
 		        line_not_found = 1;
 		    }
-		}else if (end-begin>300){
+		}else if (end-begin>500){
 			line_not_found = 1;
 		}
 		else//if no begin was found
@@ -95,8 +97,9 @@ uint16_t extract_line_width(uint8_t *buffer){
 		end = 0;
 		line_width =  last_width;
 	}else{
-		line_width = last_width = (end - begin);
 		line_position = (begin + end)/2; //gives the line position.
+		line_width = last_width = (end - begin);
+
 	}
 
 	return line_not_found;
@@ -134,7 +137,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t *img_buff_ptr;
 	uint8_t image_red[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_blue[IMAGE_BUFFER_SIZE] = {0};
-	uint16_t lineWidth = 0;
 	bool send_to_computer = true;
 
     while(1){
@@ -185,7 +187,11 @@ void process_image_start(void){
 }
 
 _Bool get_red_stop(void){
-	return red_stop;
+	if (red_stop) {
+		red_stop =0;
+		return !red_stop;
+	}
+	return 0;
 }
 
 void reset_red_stop(void){
@@ -202,11 +208,11 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 	uint32_t mean_line_red = 0;
 	uint32_t mean_line_blue = 0;
 	int line_not_found = extract_line_width(blue_image);
-	uint16_t begin_line = IMAGE_BUFFER_SIZE/2 - line_width/2;
-	uint16_t end_line = IMAGE_BUFFER_SIZE/2 + line_width/2;
+	uint16_t begin_line = begin;
+	uint16_t end_line = end;
 
 	//computes the mean of the overall red intensity
-	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 
 		mean_red += red_image[i];
 	}
@@ -224,8 +230,7 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 
 	//enters the if only when a line is found, the red intensity mean of the line is higher
 	//than the overall mean, and the blue line mean is low
-	if(mean_line_red > mean_red*1.2 && !line_not_found && mean_line_blue < BLUE_LINE_AVERAGE){
-
+	if(mean_line_red > mean_red*0.9  && mean_line_blue < BLUE_LINE_AVERAGE){
 		red_stop = 1;
 	}
 }
