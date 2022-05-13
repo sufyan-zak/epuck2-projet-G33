@@ -52,7 +52,7 @@ int main(void)
 	process_image_start();
 	path_regulator_start();
 	leds_toggle_start();
-	//calibrate_ir();
+	playMelodyStart();
 
     // Infinite loop.
     while (1) {

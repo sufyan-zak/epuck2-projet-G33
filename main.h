@@ -9,6 +9,7 @@ extern "C" {
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
 #include <motors.h>
+#include <audio/play_melody.h>
 
 
 //constants for the differents parts of the project
@@ -16,7 +17,7 @@ extern "C" {
 #define WIDTH_SLOPE				10
 #define MIN_LINE_WIDTH			40
 #define ROTATION_THRESHOLD		10
-#define ROTATION_COEFF			2
+#define ROTATION_COEFF			2.4
 #define PXTOCM					1570.0f //experimental value
 #define GOAL_DISTANCE 			10.0f
 #define MAX_DISTANCE 			25.0f

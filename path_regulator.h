@@ -1,9 +1,25 @@
-#ifndef PI_REGULATOR_H
-#define PI_REGULATOR_H
+#ifndef PATH_REGULATOR_H
+#define PATH_REGULATOR_H
 
-//start the Path regulator thread
-
+/**
+ * @brief :		start the Path regulator thread
+ *
+ * @return :	None
+ */
 void path_regulator_start(void);
+
+/**
+ * @brief :		starts the thread responsible of leds
+ *
+ * @return :	None
+ */
 void leds_toggle_start(void);
+
+/**
+ * @brief :		turns off all the leds
+ *
+ * @return :	None
+ */
 void reset_leds(void);
-#endif /* PI_REGULATOR_H */
+
+#endif /* PATH_REGULATOR_H */

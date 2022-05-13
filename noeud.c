@@ -7,9 +7,9 @@
 #include <math.h>
 #include <noeud.h>
 
-void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
+void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int d)
 {
-	for(int j = 0 ; j < SIZE ; ++j)
+	for(int j = 0 ; j < NB_NODES ; ++j)
 	{
 		tn[j]->access = infinite_time;
 		tn[j]->parent = no_link;
@@ -24,11 +24,11 @@ void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int d)
 	queue[d] = d;
 }
 
-void sort_queue(int *queue,  struct Noeud *tn[SIZE])
+void sort_queue(int *queue,  struct Noeud *tn[NB_NODES])
 {
-	float tab_access[SIZE];
+	float tab_access[NB_NODES];
 
-	for(unsigned int k =0 ; k < SIZE ; ++k)
+	for(unsigned int k =0 ; k < NB_NODES ; ++k)
 	{
 		tab_access[k] = tn[queue[k]]->access;
 	}
@@ -36,7 +36,7 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE])
 	_Bool swap = 1;
 	float tmp = 0;
 	float mem = 0;
-	for(unsigned int k = 0 ; k < SIZE - 1 && swap; ++k)
+	for(unsigned int k = 0 ; k < NB_NODES - 1 && swap; ++k)
 	{
 		if(tab_access[k+1] < tab_access[k])
 		{
@@ -57,23 +57,23 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE])
 	}
 }
 
-unsigned int find_min_access(int *queue, struct Noeud *tn[SIZE])
+unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES])
 {
-	for(unsigned int k = 0 ; k < SIZE ; ++k)
+	for(unsigned int k = 0 ; k < NB_NODES ; ++k)
 	{
 		if(tn[queue[k]]->in)  return queue[k];
 	}
 	return 0;
 }
 
-void dijkstra(int *queue, struct Noeud *tn[SIZE], unsigned int deb)
+void dijkstra(int *queue, struct Noeud *tn[NB_NODES], unsigned int deb)
 {
 	init_queue(queue, tn, deb);
 	sort_queue(queue, tn);
 
 	unsigned int nd_min = 0;
 	unsigned int cmt_tab = 0;
-	while(cmt_tab < SIZE)
+	while(cmt_tab < NB_NODES)
 	{
 		nd_min = find_min_access(queue, tn);
 
@@ -86,7 +86,7 @@ void dijkstra(int *queue, struct Noeud *tn[SIZE], unsigned int deb)
 }
 
 // updates the values of neighbour nodes if they are closer
-void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
+void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
 

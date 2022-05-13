@@ -6,8 +6,7 @@
 #include <noeud.h>
 #ifndef LECTURE_H_
 #define LECTURE_H_
-#define NB_NODES SIZE
-
+#define MAX_PATH_SIZE 10
 /**
  * @brief :		Creates the city by initializing every node and its links with
  * 				other nodes.

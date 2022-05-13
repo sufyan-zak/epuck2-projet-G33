@@ -10,6 +10,7 @@
 
 enum orientation{east, south, west, north};
 enum direction{start,right, left, forward, stop};
+enum state{free_path, obstacle_around};
 
 /**
  * @brief			computes which direction to take
@@ -17,7 +18,7 @@ enum direction{start,right, left, forward, stop};
  *
  * @return			an int, corresponding to the direction
  */
-int crossroad_instruction(int path[10], unsigned int get_size_path, unsigned int get_end_node,
+int crossroad_instruction(int path[10], unsigned int get_size_path,
 							int *current_node,enum orientation *current_orientation, enum direction actual_direction);
 /**
  * @brief			the following functions operates to the wheels the

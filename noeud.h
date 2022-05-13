@@ -10,7 +10,7 @@
 
 #define no_link  -1
 #define infinite_time  100000000000
-#define SIZE 25
+#define NB_NODES 16
 #define default_speed 5.0
 
 struct Noeud {
@@ -22,7 +22,7 @@ struct Noeud {
 	// variables used in Dijkstra Algorithm
 	float access;
 	int in;					// Boolean value, either 0 (false) or 1 (true)
-	unsigned int parent;
+	int parent;
 };
 
 /**
@@ -38,7 +38,7 @@ struct Noeud {
  *
  * @return :	None
  */
-void dijkstra(int *queue,struct Noeud *tn[SIZE], unsigned int deb);
+void dijkstra(int *queue,struct Noeud *tn[NB_NODES], unsigned int deb);
 
 
 
@@ -50,7 +50,7 @@ void dijkstra(int *queue,struct Noeud *tn[SIZE], unsigned int deb);
  *
  * @return :	None
  */
-void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int deb);
+void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int deb);
 
 
 
@@ -61,7 +61,7 @@ void init_queue(int *queue,  struct Noeud *tn[SIZE], unsigned int deb);
  *
  * @return :	None
  */
-void sort_queue(int *queue,  struct Noeud *tn[SIZE]);
+void sort_queue(int *queue,  struct Noeud *tn[NB_NODES]);
 
 
 
@@ -70,9 +70,9 @@ void sort_queue(int *queue,  struct Noeud *tn[SIZE]);
  * 				the nd_min variable.
  *
  *
- * @return :	The corresponding node closest node that hasn't still be studied.
+ * @return :	The corresponding node closest node that hasn't still been studied.
  */
-unsigned int find_min_access(int *queue, struct Noeud *tn[SIZE]);
+unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES]);
 
 
 
@@ -83,7 +83,7 @@ unsigned int find_min_access(int *queue, struct Noeud *tn[SIZE]);
  *
  * @return :	None
  */
-void recherche_voisins(int *queue, struct Noeud *tn[SIZE], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens);
+void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens);
 
 
 

@@ -1,10 +1,7 @@
-/*
- * pid_regulator.c
- *
- *  Created on: 9 mai 2022
- *      Author: Administrateur
+/**
+ * @file    pid_regulator.c
+ * @brief   Implementation of a simple PID regulator
  */
-
 
 
 #include <pid_regulator.h>

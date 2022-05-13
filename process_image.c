@@ -1,3 +1,10 @@
+/**
+ * @file    process_image.c
+ * @brief   Processes the image seen by the robot that changes
+ * 			the booleans red_stop and horizontal_line
+ *
+ *
+ */
 #include "ch.h"
 #include "hal.h"
 #include <chprintf.h>
@@ -11,12 +18,10 @@
 #define BLACK_H_LINE_AVERAGE 30
 #define BLUE_LINE_AVERAGE 60
 
-
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static _Bool red_stop = 0;
 static uint16_t line_width = 0;
-static int horizontal_line = 0;
-static _Bool check_test = 0;
+static _Bool horizontal_line = 0;
 static int begin;
 static int end;
 
@@ -160,11 +165,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//sets the value of "red_stop" if a red line is found
 		check_red_stop(image_red,image_blue);
 
-		if(check_test){
 
-			//sets the value of "horizontal_line" if a black horizontal line is found
-			check_black_h_line(image_red);
-		}
+		//sets the value of "horizontal_line" if a black horizontal line is found
+		check_black_h_line(image_red);
+
 
 		if(send_to_computer){
 
@@ -239,12 +243,15 @@ void check_black_h_line(uint8_t *red_image){
 
 	uint16_t mean  = 0;
 
+	//computes the mean of the overall red intensity
 	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 
 			mean += red_image[i];
 	}
 	mean /= IMAGE_BUFFER_SIZE;
 
+	//enters the if when a black horizontal line is spotted
+	//meaning that the robot found the continuity of the path
 	if (mean < BLACK_H_LINE_AVERAGE){
 
 		horizontal_line = 1;
@@ -252,8 +259,12 @@ void check_black_h_line(uint8_t *red_image){
 
 }
 
-int get_horizontal_line(void){
-	return horizontal_line;
+_Bool get_horizontal_line(void){
+	if (horizontal_line) {
+		horizontal_line =0;
+		return !horizontal_line;
+	}
+	return 0;
 }
 
 void reset_horizontal_line(void){
@@ -262,12 +273,5 @@ void reset_horizontal_line(void){
 
 void set_horizontal_line(void){
 	horizontal_line =1;
-}
-
-void set_check_test(void){
-	check_test =1;
-}
-void reset_check_test(void){
-	check_test=0;
 }
 
