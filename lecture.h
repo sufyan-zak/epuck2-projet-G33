@@ -3,10 +3,12 @@
  * @brief   Creates the city and calculates the shortest path
  */
 
-#include <noeud.h>
 #ifndef LECTURE_H_
 #define LECTURE_H_
-#define MAX_PATH_SIZE 10
+
+
+
+
 /**
  * @brief :		Creates the city by initializing every node and its links with
  * 				other nodes.
@@ -29,26 +31,6 @@ void do_djikstra(uint8_t going_back);
  * @return :	Number of nodes in the shortest path (unsigned int)
  */
 unsigned int get_size_path(void);
-
-
-
-/**
- * @brief :		Returns the UID of the starting node
- *
- *
- * @return :	UID of the starting node (unsigned int)
- */
-unsigned int get_start_node(void);
-
-
-
-/**
- * @brief :		Returns the UID of the end node
- *
- *
- * @return :	UID of the end node	(unsigned int)
- */
-unsigned int get_end_node(void);
 
 
 

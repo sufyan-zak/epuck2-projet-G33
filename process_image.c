@@ -1,44 +1,138 @@
 /**
  * @file    process_image.c
- * @brief   Processes the image seen by the robot that changes
- * 			the booleans red_stop and horizontal_line
+ * @brief   Processes the image seen by the robot , changes
+ * 			the booleans red_stop and horizontal_line when a stop or the
+ * 			end of an obstacle is found ando also spots the
+ *
  *
  *
  */
+
+
+//standard C headers
 #include "ch.h"
 #include "hal.h"
 #include <chprintf.h>
 #include <usbcfg.h>
 
-#include <main.h>
+
+//e-puck2 main processor headers
 #include <camera/po8030.h>
 
+//module headers
 #include <process_image.h>
-
+#include <main.h>
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 #define BLACK_H_LINE_AVERAGE 30
 #define BLUE_LINE_AVERAGE 60
 
-static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
-static _Bool red_stop = 0;
-static uint16_t line_width = 0;
-static _Bool horizontal_line = 0;
-static int begin;
-static int end;
+/*===========================================================================*/
+/* Module local variables.                                                   */
+/*===========================================================================*/
 
+static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle of the array
+static uint16_t line_width = 0;
+static uint16_t begin;
+static uint16_t  end;
+static _Bool horizontal_line = 0;
+static _Bool red_stop = 0;
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
-/*
- *  Returns 1 if there is a line extracted from the image buffer given
- *  Returns 0 if line not found
+
+/*===========================================================================*/
+/* Module threads.	                                                         */
+/*===========================================================================*/
+
+static THD_WORKING_AREA(waCaptureImage, 256);
+static THD_FUNCTION(CaptureImage, arg) {
+
+    chRegSetThreadName(__FUNCTION__);
+    (void)arg;
+
+	//takes pixels 0 to IMAGE_BUFFER_SIZE of the line 200 + 201 (minimum 2 lines because reasons)
+	po8030_advanced_config(FORMAT_RGB565, 0, 200, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+	dcmi_enable_double_buffering();
+	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
+	dcmi_prepare();
+
+    while(1){
+        //starts a capture
+		dcmi_capture_start();
+		//waits for the capture to be done
+		wait_image_ready();
+		//signals an image has been captured
+		chBSemSignal(&image_ready_sem);
+    }
+}
+
+
+static THD_WORKING_AREA(waProcessImage, 4096);
+static THD_FUNCTION(ProcessImage, arg) {
+
+    chRegSetThreadName(__FUNCTION__);
+    (void)arg;
+
+	uint8_t *img_buff_ptr;
+	uint8_t image_red[IMAGE_BUFFER_SIZE] = {0};
+	uint8_t image_blue[IMAGE_BUFFER_SIZE] = {0};
+	bool send_to_computer = true;
+
+    while(1){
+    	//waits until an image has been captured
+        chBSemWait(&image_ready_sem);
+
+		//gets the pointer to the array filled with the last image in RGB565
+		img_buff_ptr = dcmi_get_last_image_ptr();
+
+		//extracts the red  and the blue
+		for(uint16_t i = 0 ; i <  IMAGE_BUFFER_SIZE ; i++){
+			//extracts last 5bits of the second byte for the blue pixels
+			//takes nothing from the first byte
+			image_blue[i] = (img_buff_ptr[2*i+1]&0x1F) << 3;
+
+			//extracts first 5bits of the first byte for the red pixels
+			//takes nothing from the second byte
+			image_red[i] = (uint8_t)img_buff_ptr[2*i]&0xF8;
+		}
+
+		//sets the value of "red_stop" if a red line is found
+		check_red_stop(image_red,image_blue);
+
+
+		//sets the value of "horizontal_line" if a black horizontal line is found
+		check_black_h_line(image_red);
+
+
+		if(send_to_computer){
+
+			//sends to the computer the image
+			//SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
+		}
+
+		//invert the bool
+		send_to_computer = !send_to_computer;
+    }
+}
+
+/*===========================================================================*/
+/* Module functions.	                                                     */
+/*===========================================================================*/
+
+/* @brief Uses the buffer computed by the image processing to
+ *
+ * @return Returns 1 if there is a line extracted from the image buffer given
+ * 		Returns 0 if line not found
  */
-uint16_t extract_line_width(uint8_t *buffer){
+uint16_t extract_line(uint8_t *buffer){
 
 	uint16_t i = 0;
 	uint8_t stop = 0, wrong_line = 0, line_not_found = 0;
 	uint32_t mean = 0;
 
-	static uint16_t last_width = PXTOCM/GOAL_DISTANCE;
+	static uint16_t last_width =0;
 
 	//performs an average
 	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
@@ -110,76 +204,7 @@ uint16_t extract_line_width(uint8_t *buffer){
 	return line_not_found;
 }
 
-static THD_WORKING_AREA(waCaptureImage, 256);
-static THD_FUNCTION(CaptureImage, arg) {
 
-    chRegSetThreadName(__FUNCTION__);
-    (void)arg;
-
-	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 200 + 201 (minimum 2 lines because reasons)
-	po8030_advanced_config(FORMAT_RGB565, 0, 200, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-	dcmi_enable_double_buffering();
-	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
-	dcmi_prepare();
-
-    while(1){
-        //starts a capture
-		dcmi_capture_start();
-		//waits for the capture to be done
-		wait_image_ready();
-		//signals an image has been captured
-		chBSemSignal(&image_ready_sem);
-    }
-}
-
-
-static THD_WORKING_AREA(waProcessImage, 4096);
-static THD_FUNCTION(ProcessImage, arg) {
-
-    chRegSetThreadName(__FUNCTION__);
-    (void)arg;
-
-	uint8_t *img_buff_ptr;
-	uint8_t image_red[IMAGE_BUFFER_SIZE] = {0};
-	uint8_t image_blue[IMAGE_BUFFER_SIZE] = {0};
-	bool send_to_computer = true;
-
-    while(1){
-    	//waits until an image has been captured
-        chBSemWait(&image_ready_sem);
-
-		//gets the pointer to the array filled with the last image in RGB565    
-		img_buff_ptr = dcmi_get_last_image_ptr();
-
-		//extracts the red  and the blue
-		for(uint16_t i = 0 ; i <  IMAGE_BUFFER_SIZE ; i++){
-			//extracts last 5bits of the second byte for the blue pixels
-			//takes nothing from the first byte
-			image_blue[i] = (img_buff_ptr[2*i+1]&0x1F) << 3;
-
-			//extracts first 5bits of the first byte for the red pixels
-			//takes nothing from the second byte
-			image_red[i] = (uint8_t)img_buff_ptr[2*i]&0xF8;
-		}
-
-		//sets the value of "red_stop" if a red line is found
-		check_red_stop(image_red,image_blue);
-
-
-		//sets the value of "horizontal_line" if a black horizontal line is found
-		check_black_h_line(image_red);
-
-
-		if(send_to_computer){
-
-			//sends to the computer the image
-			//SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
-		}
-
-		//invert the bool
-		send_to_computer = !send_to_computer;
-    }
-}
 
 uint16_t get_line_position(void){
 	return line_position;
@@ -211,7 +236,7 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 	uint16_t mean_red = 0;
 	uint32_t mean_line_red = 0;
 	uint32_t mean_line_blue = 0;
-	int line_not_found = extract_line_width(blue_image);
+	int line_not_found = extract_line(blue_image);
 	uint16_t begin_line = begin;
 	uint16_t end_line = end;
 
@@ -256,7 +281,6 @@ void check_black_h_line(uint8_t *red_image){
 
 		horizontal_line = 1;
 	}
-
 }
 
 _Bool get_horizontal_line(void){

@@ -4,13 +4,14 @@
  *  Created on: 9 mai 2022
  *      Author: Yassir Belguerch
  */
+
+#ifndef PID_REGULATOR_H_
+#define PID_REGULATOR_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <motors.h>
-
-#ifndef PID_REGULATOR_H_
-#define PID_REGULATOR_H_
 
 #define KD_PID 0.5
 #define KI_PID 0.05
@@ -18,7 +19,8 @@
 #define S_TIME_PID       0.01
 #define S_FILTER_PID 5*S_TIME_PID
 #define ERROR_THRESHOLD			0.1f
-#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/3.5)
+#define SUM_ERROR_DIVISION 3.5
+#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/SUM_ERROR_DIVISION)
 
 /**
  * @brief			the following function calculates the speed correction given

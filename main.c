@@ -15,8 +15,8 @@
 #include <camera/po8030.h>
 #include <chprintf.h>
 #include <spi_comm.h>
+
 #include <process_image.h>
-#include <lecture.h>
 #include <path_regulator.h>
 
 
@@ -52,7 +52,6 @@ int main(void)
 	process_image_start();
 	path_regulator_start();
 	leds_toggle_start();
-	playMelodyStart();
 
     // Infinite loop.
     while (1) {

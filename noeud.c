@@ -9,15 +9,14 @@
 
 void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int d)
 {
-	for(int j = 0 ; j < NB_NODES ; ++j)
-	{
+	for(int j = 0 ; j < NB_NODES ; ++j) {
 		tn[j]->access = infinite_time;
 		tn[j]->parent = no_link;
 		tn[j]->in = 1;
 		queue[j] = j;
 	}
 
-	// d is the index of the start node
+	//d is the index of the start node
 	tn[d]->access = 0;
 	tn[d]->in = 1;
 	tn[d]->parent = no_link;
@@ -28,20 +27,16 @@ void sort_queue(int *queue,  struct Noeud *tn[NB_NODES])
 {
 	float tab_access[NB_NODES];
 
-	for(unsigned int k =0 ; k < NB_NODES ; ++k)
-	{
+	for(unsigned int k =0 ; k < NB_NODES ; ++k) {
 		tab_access[k] = tn[queue[k]]->access;
 	}
 
 	_Bool swap = 1;
 	float tmp = 0;
 	float mem = 0;
-	for(unsigned int k = 0 ; k < NB_NODES - 1 && swap; ++k)
-	{
-		if(tab_access[k+1] < tab_access[k])
-		{
-			while(tab_access[k+1] < tab_access[k])
-			{
+	for(unsigned int k = 0 ; k < NB_NODES - 1 && swap; ++k) {
+		if(tab_access[k+1] < tab_access[k]) {
+			while(tab_access[k+1] < tab_access[k]) {
 				tmp = tab_access[k+1];
 				mem = queue[k+1];
 
@@ -59,8 +54,7 @@ void sort_queue(int *queue,  struct Noeud *tn[NB_NODES])
 
 unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES])
 {
-	for(unsigned int k = 0 ; k < NB_NODES ; ++k)
-	{
+	for(unsigned int k = 0 ; k < NB_NODES ; ++k) {
 		if(tn[queue[k]]->in)  return queue[k];
 	}
 	return 0;
@@ -73,8 +67,7 @@ void dijkstra(int *queue, struct Noeud *tn[NB_NODES], unsigned int deb)
 
 	unsigned int nd_min = 0;
 	unsigned int cmt_tab = 0;
-	while(cmt_tab < NB_NODES)
-	{
+	while(cmt_tab < NB_NODES) {
 		nd_min = find_min_access(queue, tn);
 
 		tn[nd_min]->in = 0;
@@ -85,27 +78,24 @@ void dijkstra(int *queue, struct Noeud *tn[NB_NODES], unsigned int deb)
 
 }
 
-// updates the values of neighbour nodes if they are closer
+//updates the values of neighbor nodes if they are closer
 void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
 
-	// to get the real number of links
-	for(unsigned int i = 0 ; i < size_tab_liens ; ++i)
-	{
+	//to get the real number of links
+	for(unsigned int i = 0 ; i < size_tab_liens ; ++i) {
 		if(nd->tab_liens[i] == no_link)
 		{
 			size_tab_liens = i;
 			break;
 		}
 	}
-	for(unsigned int i = 0 ; i < size_tab_liens ; ++i)
-	{
+	for(unsigned int i = 0 ; i < size_tab_liens ; ++i) {
 		if(tn[nd->tab_liens[i]]->in)
 		{
 			alt = nd->access + temps_lien(nd, tn[nd->tab_liens[i]]);
-			if(tn[nd->tab_liens[i]]->access > alt)
-			{
+			if(tn[nd->tab_liens[i]]->access > alt) {
 				tn[nd->tab_liens[i]]->access = alt;
 				tn[nd->tab_liens[i]]->parent = nd_min;
 				sort_queue(queue, tn);
@@ -115,7 +105,7 @@ void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_m
 
 }
 
-// calculates the time it takes to cross a link
+//calculates the time it takes to cross a link
 float temps_lien(struct Noeud* a, struct Noeud* b)
 {
 	_Bool stop = 0;

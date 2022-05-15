@@ -7,6 +7,11 @@
 #include <pid_regulator.h>
 #include <math.h>
 
+/*===========================================================================*/
+/* Module functions.	                                                     */
+/*===========================================================================*/
+
+
 int16_t pid_regulator(float distance, float goal, float kp, float ki, float kd){
 
 	float error = 0;
@@ -28,7 +33,6 @@ int16_t pid_regulator(float distance, float goal, float kp, float ki, float kd){
     sum_derivative = ((sum_derivative*S_FILTER_PID)+0.5*(error-old_error))/(S_TIME_PID+S_FILTER_PID);
 
 	//we set a maximum and a minimum for the integrating sum to avoid an uncontrolled growth
-
 	if(sum_error > MAX_SUM_ERROR){
 		sum_error = MAX_SUM_ERROR;
 	}else if(sum_error < -MAX_SUM_ERROR){

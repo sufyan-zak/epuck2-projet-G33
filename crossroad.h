@@ -2,11 +2,14 @@
  * crossroad.h
  *
  *  Created on: 9 mai 2022
- *      Author: Administrateur
+ *      Author: Yassir Belguerch
  */
+
 
 #ifndef CROSSROAD_H_
 #define CROSSROAD_H_
+
+#include <main.h>
 
 enum orientation{east, south, west, north};
 enum direction{start,right, left, forward, stop};
@@ -14,12 +17,12 @@ enum state{free_path, obstacle_around};
 
 /**
  * @brief			computes which direction to take
- * 					when arriving at a crossroad
+ * 					when arriving at a cross road
  *
- * @return			an int, corresponding to the direction
+ * @return			none
  */
-int crossroad_instruction(int path[10], unsigned int get_size_path,
-							int *current_node,enum orientation *current_orientation, enum direction actual_direction);
+void update_crossroad_instruction(int path[MAX_PATH_SIZE], unsigned int get_size_path,
+							int *current_node,enum orientation *current_orientation, enum direction *current_direction);
 /**
  * @brief			the following functions operates to the wheels the
  * 					direction indicated by crossroad_instruction function

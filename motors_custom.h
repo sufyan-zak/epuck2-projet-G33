@@ -1,9 +1,3 @@
-/*
- * motors_custom.h
- *
- *  Created on: 5 mai 2022
- *      Author: Yassir
- */
 
 #ifndef MOTORS_CUSTOM_H_
 #define MOTORS_CUSTOM_H_
@@ -18,9 +12,7 @@ void motor_advance_cm(float postion_r, float position_l , float speed_r , float 
  * @return :	None
  */
 void motor_turn_right(void);
-
 void motor_turn_left(void);
-
 
 /**
  * @brief :		turns 180 degrees left or right
@@ -30,7 +22,6 @@ void motor_turn_left(void);
  * @return :	None
  */
 void motor_turn_half_right(void);
-
 void motor_turn_half_left(void);
 
 /**

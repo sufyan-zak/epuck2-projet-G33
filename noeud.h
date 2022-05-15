@@ -8,9 +8,10 @@
 #ifndef NOEUD_H_
 #define NOEUD_H_
 
+#include <main.h>
+
 #define no_link  -1
 #define infinite_time  100000000000
-#define NB_NODES 16
 #define default_speed 5.0
 
 struct Noeud {

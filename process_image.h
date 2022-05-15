@@ -1,6 +1,9 @@
 #ifndef PROCESS_IMAGE_H
 #define PROCESS_IMAGE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 uint16_t get_line_position(void);
 void process_image_start(void);
@@ -14,7 +17,6 @@ void process_image_start(void);
  * @return			none
  */
 void check_red_stop(uint8_t *red_image,uint8_t *blue_image);
-
 
 /**
  * @brief			the following functions manipulate the state of the boolean red_stop
@@ -35,6 +37,8 @@ void set_red_stop(void);
  * @return			none
  */
 void check_black_h_line(uint8_t *red_image);
+
+
 /**
  * @brief			the following functions manipulate the state of red_stop
  *

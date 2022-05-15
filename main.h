@@ -5,28 +5,27 @@
 extern "C" {
 #endif
 
-#include "camera/dcmi_camera.h"
-#include "msgbus/messagebus.h"
-#include "parameter/parameter.h"
+
 #include <motors.h>
 #include <audio/play_melody.h>
 
+#include "camera/dcmi_camera.h"
+#include "msgbus/messagebus.h"
+#include "parameter/parameter.h"
 
-//constants for the differents parts of the project
+//constants for the different parts of the project
 #define IMAGE_BUFFER_SIZE		640
 #define WIDTH_SLOPE				10
 #define MIN_LINE_WIDTH			40
-#define ROTATION_THRESHOLD		10
 #define ROTATION_COEFF			2.4
-#define PXTOCM					1570.0f //experimental value
-#define GOAL_DISTANCE 			10.0f
-#define MAX_DISTANCE 			25.0f
-#define KP						800.0f
-#define KI 						3.5f	//must not be zero
 
+#define CITY_SIZE_LINE          4
+#define NB_NODES  				16
+#define MAX_PATH_SIZE           10
 
-#define DEFAULT_SPEED 500
-#define DEFAULT_SPEED_CM 8
+#define DEFAULT_SPEED_STEPS     500
+#define DEFAULT_SPEED_CM        8
+
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
