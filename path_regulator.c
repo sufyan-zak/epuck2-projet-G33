@@ -222,7 +222,7 @@ void led_animation(enum state current_state, enum direction current_direction,
 					_Bool *sequence, uint8_t *color){
 
 	if (current_state==obstacle_around && !*sequence){
-				++*sequence;
+				*sequence = 1;
 				set_led(LED1,1);
 				set_led(LED5,1);
 				set_led(LED3,0);

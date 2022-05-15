@@ -16,7 +16,7 @@
 #define WHEEL_PERIMETER_CM    13
 #define DEFAULT_SPEED_CM      8
 #define ROBOT_DIAMETER       5.3
-#define ROBOT_PERIMETER M_PI*ROBOT_DIAMETER
+#define ROBOT_PERIMETER 	M_PI*ROBOT_DIAMETER
 
 /*===========================================================================*/
 /* Module functions.	                                                     */

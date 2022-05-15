@@ -23,7 +23,14 @@
  * @brief			the following function calculates the speed correction given
  * 					a distance and a goal distance using a PID regulator
  *
- * @return			int speed : speed correction for the regulation
+ * @param 			A float that is the actual distance
+ * 					A float that is the goal distance
+ * 					A float that is the proportionnal term of the regulator
+ * 					A float that is the integrator term of the regulator
+ * 					A float that is the derivative term of the regulator
+ * 
+ * @return			speed correction for the regulation, then given to the 
+ * 					wheels
  */
 int16_t pid_regulator(float distance, float goal, float kp, float ki, float kd);
 

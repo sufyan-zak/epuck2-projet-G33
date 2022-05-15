@@ -39,6 +39,10 @@ void reset_leds(void);
 /**
  * @brief :		toggles the different LEDs in function of the state
  *
+ * @param :		current state of the robot
+ * 				current direction of the robot
+ * 				boolean used in the LED animation
+ * 				int pointer that defines the LED color
  * @return :	None
  */
 void led_animation(enum state current_state, enum direction current_direction,

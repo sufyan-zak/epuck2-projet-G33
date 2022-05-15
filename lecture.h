@@ -6,6 +6,9 @@
 #ifndef LECTURE_H_
 #define LECTURE_H_
 
+// module header
+#include main.h
+
 /*===========================================================================*/
 /* Functions declaration.                                                    */
 /*===========================================================================*/
@@ -17,6 +20,8 @@
  *				Considering an end_node, the shortest path (i.e the corresponding UID
  *				nodes) is memorized in a table.
  *
+ * @param : 	boolean variable that says if robot is going to END_NODE (false)
+ * 				or is coming back to START_NODE (true)
  *
  * @return :	None
  */
@@ -38,10 +43,11 @@ unsigned int get_size_path(void);
  * @brief :		Copies the table with the shortest path nodes in
  * 				the table given in parameter.
  *
+ * @param : 	Table in which the array will be copied
  *
  * @return :	None
  */
-void get_path(int copy_path[10]);
+void get_path(int copy_path[MAX_PATH_SIZE]);
 
 
 #endif /* LECTURE_H_ */

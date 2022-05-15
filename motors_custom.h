@@ -13,9 +13,11 @@
 /*===========================================================================*/
 
 /**
- * @brief :		advances an amount of cm (given by the first 2 parameters) at a given 
- * 				speed (last 2 parameters)
+ * @brief :		advances an amount of cm at a given speed 
  *
+ * @param : 	First two parameters are the distance in cm to advance to each wheel
+ * 				Last two parameters are the speed of each wheel
+ * 
  * @return :	None
  */
 void motor_advance_cm(float postion_r, float position_l , float speed_r , float speed_l);
