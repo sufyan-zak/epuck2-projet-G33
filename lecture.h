@@ -6,6 +6,9 @@
 #ifndef LECTURE_H_
 #define LECTURE_H_
 
+//Module header
+#include <main.h>
+
 /*===========================================================================*/
 /* Functions declaration.                                                    */
 /*===========================================================================*/
@@ -41,7 +44,7 @@ unsigned int get_size_path(void);
  *
  * @return :	None
  */
-void get_path(int copy_path[10]);
+void get_path(int copy_path[MAX_PATH_SIZE]);
 
 
 #endif /* LECTURE_H_ */
