@@ -16,7 +16,7 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 #define START_NODE 0
-#define END_NODE 6
+#define END_NODE 10
 
 
 // Initialization of the city

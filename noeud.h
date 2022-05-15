@@ -9,7 +9,7 @@
 #define NOEUD_H_
 
 // module header
-#include <main.h>
+#include <constants.h>
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -21,8 +21,8 @@
 struct Noeud {
 	int uid;
 
-	int tab_liens[5];			// if the number is != -1, it is a link. The number corresponds to the UID of the neighbour node
-	float tab_liens_dist[5]; 	// corresponds to the distance to the correspondant node in tab_liens
+	int tab_liens[MAX_LINK_SIZE];			// if the number is != -1, it is a link. The number corresponds to the UID of the neighbour node
+	float tab_liens_dist[MAX_LINK_SIZE]; 	// corresponds to the distance to the correspondant node in tab_liens
 
 	// variables used in Dijkstra Algorithm
 	float access;
@@ -44,10 +44,7 @@ struct Noeud {
  * 				"access" variable (in "Noeud" struct) is successively updated and
  * 				represents the time taken in order to arrive to the start_node.
  *
- * @param :		Queue table with the nearest nodes at the top
- * 				Table with all the city nodes in it
- * 				Unsigned int that is the UID of START_NODE
- * 
+ *
  * @return :	None
  */
 void dijkstra(int *queue,struct Noeud *tn[NB_NODES], unsigned int deb);
@@ -59,10 +56,7 @@ void dijkstra(int *queue,struct Noeud *tn[NB_NODES], unsigned int deb);
  * 				order relatively to the "access" time. "init_queue" initializes
  * 				this table at the beginning of the Dijkstra algorithm.
  *
- * @param :		Queue table with the nearest nodes at the top
- * 				Table with all the city nodes in it
- * 				Unsigned int that is the UID of START_NODE
- * 
+ *
  * @return :	None
  */
 void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int deb);
@@ -73,9 +67,7 @@ void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int deb);
  * @brief :		sorts the queue table in an increasing order relatively to
  * 				the "access" time.
  *
- * @param :		Queue table with the nearest nodes at the top
- * 				Table with all the city nodes in it
- * 
+ *
  * @return :	None
  */
 void sort_queue(int *queue,  struct Noeud *tn[NB_NODES]);
@@ -86,9 +78,7 @@ void sort_queue(int *queue,  struct Noeud *tn[NB_NODES]);
  * @brief :		Finds the closest next node to be studied. It is memorized in
  * 				the nd_min variable.
  *
- * @param :		Queue table with the nearest nodes at the top
- * 				Table with all the city nodes in it
- * 
+ *
  * @return :	The corresponding node closest node that hasn't still been studied.
  */
 unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES]);
@@ -99,11 +89,6 @@ unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES]);
  * @brief :		Updates the "parent" and "access" value of nodes that are neighbour
  * 				to the the current node being studied (that is tn[nd_min]).
  *
- * @param :		Queue table with the nearest nodes at the top
- * 				Table with all the city nodes in it
- * 				Unsigned int with the index in "tn" table of the node that is currently treated by Dijkstra
- * 				Node that is currently treated by Dijkstra
- * 				Number of links of the node being currently treated by Dijkstra
  *
  * @return :	None
  */
@@ -117,8 +102,6 @@ void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_m
  * 				of the node. Time is then obtained by dividing this distance by
  * 				a default_speed.
  *
- * @param :		Two neighbour nodes from which the time/distance of the corresponding
- * 				link will be calculated
  *
  * @return :	A float representing the time it takes to travel a link.
  */

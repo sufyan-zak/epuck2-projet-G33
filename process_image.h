@@ -48,7 +48,7 @@ void set_red_stop(void);
  *
  * @return			none
  */
-void check_black_h_line(uint8_t *red_image);
+void check_black_h_line(uint8_t *image_red,uint8_t *image_blue);
 
 
 /**

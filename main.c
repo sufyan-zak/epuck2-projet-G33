@@ -54,6 +54,7 @@ int main(void)
 	peripherals_init();
 	//stars the threads for the pi regulator and the processing of the image
 	process_image_start();
+	//
 	path_regulator_start();
 	leds_toggle_start();
 
@@ -89,6 +90,7 @@ void peripherals_init(void){
 	//inits IR and ToF sensors
     messagebus_init(&bus,&bus_lock,&bus_condvar);
 	proximity_start();
+
 	VL53L0X_start();
 
 }

@@ -10,7 +10,7 @@
 #define CROSSROAD_H_
 
 // module header
-#include <main.h>
+#include <constants.h>
 
 /*===========================================================================*/
 /* Functions declaration.                                                    */
@@ -24,11 +24,11 @@ enum state{free_path, obstacle_around};
  * @brief			computes which direction to take
  * 					when arriving at a cross road
  *
- * @param 			int array that is the path followed by the robot
- * 					unsigned int that is the number of nodes crossed by the robot
- * 					int that is the UID of the latest node crossed by the robot
+ * @param 			uint array that is the path followed by the robot
+ * 					unsigned uint that is the number of nodes crossed by the robot
+ * 					uint that is the UID of the latest node crossed by the robot
  * 					Cardinal direction of the robot
- * 					Direction in which the robot headed at the last crossroad
+ * 					Direction in which the robot headed at the last cross road
  * @return			none
  */
 void update_crossroad_instruction(int path[MAX_PATH_SIZE], unsigned int get_size_path,

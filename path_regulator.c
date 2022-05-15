@@ -20,13 +20,13 @@
 #include <sensors/proximity.h>
 
 // module headers
-#include <main.h>
+#include <constants.h>
 #include <pid_regulator.h>
 #include <crossroad.h>
 #include <process_image.h>
 #include <path_regulator.h>
 #include <lecture.h>
-#include <main.h>
+
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -34,8 +34,8 @@
 
 #define MIN_TOF_DIST 2
 #define OBSTACLE_DIST 70
-#define SAFETY_DIST_IR_3 600
-#define SAFETY_DIST_IR_2 230
+#define SAFETY_DIST_IR_3 620
+#define SAFETY_DIST_IR_2 280
 #define TOF_OFFSET 50
 
 // Regulator constants
@@ -44,8 +44,8 @@
 	#define KI_LINE 0
 	#define KD_LINE 0
 	// Obstacle bypassing	(PID regulator)
-	#define KP_IR 0.15
-	#define KI_IR 0.025
+	#define KP_IR 0.12	//0.1
+	#define KI_IR 0.05	//0.025
 	#define KD_IR 0.15
 
 /*===========================================================================*/
@@ -66,7 +66,7 @@ static enum direction current_direction = start;
  *
  *
  */
-static THD_WORKING_AREA(waPathRegulator, 4096);
+static THD_WORKING_AREA(waPathRegulator, 1024);
 static THD_FUNCTION(PathRegulator, arg) {
 
     chRegSetThreadName(__FUNCTION__);
@@ -88,6 +88,9 @@ static THD_FUNCTION(PathRegulator, arg) {
     //to have less noise due to ambient light for the camera
     set_body_led(1);
 
+    //calibrate the IR sensors used for the obstacle
+    calibrate_ir();
+
 	//Calculates the shortest paths from every node to another
 	do_djikstra(going_back);
 
@@ -98,8 +101,9 @@ static THD_FUNCTION(PathRegulator, arg) {
 	while(1){
         time = chVTGetSystemTime();
         uint16_t tof_distance = VL53L0X_get_dist_mm() - TOF_OFFSET;
-        uint16_t IR3_distance = get_prox(6);
-        uint16_t IR2_distance = get_prox(5);
+        uint16_t IR3_distance =get_calibrated_prox(2);
+        uint16_t IR2_distance = get_calibrated_prox(1);
+
 
         //computes a correction factor to let the robot rotate to be centered with the line
         speed_correction_line = pid_regulator(get_line_position(),(IMAGE_BUFFER_SIZE/2), 
@@ -112,11 +116,11 @@ static THD_FUNCTION(PathRegulator, arg) {
 			if (get_red_stop()){
 
 				//updates the direction to take for the red_stop
-				update_crossroad_instruction(node_path,get_size_path(),
-											 &current_node, &current_orientation, &current_direction);
+				 update_crossroad_instruction(node_path,get_size_path(),
+								&current_node, &current_orientation, &current_direction);
 
 				//prints the number of node the robot is headed using UART3 (Bluetooth)
-				chprintf((BaseSequentialStream *)&SD3, "Currently going to node  %d \n \r", current_node);
+				chprintf((BaseSequentialStream *)&SD3, "Current direction  %d \n \r", current_direction);
 
 				if(going_back) reset_leds();
 
@@ -130,6 +134,7 @@ static THD_FUNCTION(PathRegulator, arg) {
 				}
 				if (current_direction==stop && !going_back) {
 					motor_arrival_animation();
+					reset_leds();
 					going_back = 1;
 					do_djikstra(going_back);
 					current_node = node_path[1];
@@ -155,13 +160,14 @@ static THD_FUNCTION(PathRegulator, arg) {
         speed_correction_obstacle_2 =  pid_regulator(IR2_distance,SAFETY_DIST_IR_2, KP_IR, KI_IR, KD_IR);
 
         //operates the speed correction for both of the IR sensors
-   		right_motor_set_speed(DEFAULT_SPEED_STEPS - speed_correction_obstacle_1 - speed_correction_obstacle_2);
-   	    left_motor_set_speed(DEFAULT_SPEED_STEPS + speed_correction_obstacle_1 + speed_correction_obstacle_2 );
+   		right_motor_set_speed(DEFAULT_SPEED_STEPS + speed_correction_obstacle_1 +speed_correction_obstacle_2);
+   	    left_motor_set_speed(DEFAULT_SPEED_STEPS - speed_correction_obstacle_1 - speed_correction_obstacle_2 );
 
    	    //enters the if when the robot spots a horizontal black line meaning it finished avoiding the obstacle
    	    if(get_horizontal_line()) {
    	    	//aligns the wheels with the black line and turns so it follows it again
    	    	realign_after_obstacle();
+   	    	reset_leds();
 			reset_horizontal_line();
 			reset_red_stop();
 			current_state = free_path;
@@ -203,7 +209,7 @@ void path_regulator_start(void){
 }
 
 void leds_toggle_start(void){
-	chThdCreateStatic(waLedToggle, sizeof(waLedToggle), NORMALPRIO+5, LedToggle, NULL);
+	chThdCreateStatic(waLedToggle, sizeof(waLedToggle), NORMALPRIO, LedToggle, NULL);
 }
 
 void reset_leds(void){
@@ -222,7 +228,7 @@ void led_animation(enum state current_state, enum direction current_direction,
 					_Bool *sequence, uint8_t *color){
 
 	if (current_state==obstacle_around && !*sequence){
-				*sequence = 1;
+				*sequence=1;
 				set_led(LED1,1);
 				set_led(LED5,1);
 				set_led(LED3,0);

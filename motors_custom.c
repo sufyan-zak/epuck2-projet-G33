@@ -4,8 +4,10 @@
  *
  */
 
-
+//standard C header
 #include <math.h>
+
+//Module headers
 #include <motors.h>
 
 /*===========================================================================*/
@@ -26,8 +28,8 @@ void motor_advance_cm(float postion_r, float position_l , float speed_r , float 
 
 	uint32_t objective_steps_r = (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*postion_r;
 	uint32_t objective_steps_l= (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*position_l;
-	int speed_r_steps = (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*speed_r;
-	int speed_l_steps = (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*speed_l;
+	int16_t speed_r_steps = (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*speed_r;
+	int16_t speed_l_steps = (NUMBER_STEPS_ONE_TURN/WHEEL_PERIMETER_CM)*speed_l;
 	uint32_t current_steps_r = 0;
 	uint32_t current_steps_l = 0;
 
@@ -87,13 +89,13 @@ void motor_arrival_animation(void){
 }
 
 void realign_after_obstacle(void){
-	motor_advance_cm(4.5,4.5,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
-	motor_turn_right();
+	motor_advance_cm(3.5,3.5,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
+	motor_turn_left();
 	motor_advance_cm(0.5,0.5,DEFAULT_SPEED_CM,DEFAULT_SPEED_CM);
 }
 
 void move_closer_obstacle(void){
 	motor_turn_half_right();
-	motor_advance_cm(4,4,-DEFAULT_SPEED_CM,-DEFAULT_SPEED_CM);
-	motor_turn_left();
+	motor_advance_cm(5,5,-DEFAULT_SPEED_CM,-DEFAULT_SPEED_CM);
+	motor_turn_right();
 }

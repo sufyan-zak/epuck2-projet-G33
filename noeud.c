@@ -3,9 +3,13 @@
  * @brief   Implementation of Dijkstra algorithm, as well as of subfunctions
  * 			used in it.
  */
+//standard C header
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <math.h>
 
 // module headers
-#include <math.h>
 #include <noeud.h>
 
 /*===========================================================================*/
@@ -83,13 +87,13 @@ unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES])
 }
 
 //updates the values of neighbor nodes if they are closer
-void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, 
+void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min,
 						struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
 
 	//to get the real number of links
-	for(unsigned int i = 0 ; i < size_tab_liens ; ++i) {
+	for(uint16_t i = 0 ; i < size_tab_liens ; ++i) {
 		if(nd->tab_liens[i] == no_link)
 		{
 			size_tab_liens = i;
@@ -117,7 +121,7 @@ float temps_lien(struct Noeud* a, struct Noeud* b)
 	int i = 0;
 	float dist = 0;
 
-	while(!stop && i < 5) {
+	while(!stop && i < MAX_LINK_SIZE) {
 		if(a->tab_liens[i] == b->uid) {
 			stop = 1;
 			dist = a->tab_liens_dist[i];

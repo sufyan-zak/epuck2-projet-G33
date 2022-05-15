@@ -3,7 +3,7 @@
  * @brief   Implementation of a simple PID regulator
  */
 
-
+//Module header
 #include <pid_regulator.h>
 #include <math.h>
 

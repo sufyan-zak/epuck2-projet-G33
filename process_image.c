@@ -17,6 +17,7 @@
 
 //e-puck2 main processor headers
 #include <camera/po8030.h>
+#include <constants.h>
 
 //module headers
 #include <process_image.h>
@@ -25,9 +26,9 @@
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
-#define BLACK_H_LINE_AVERAGE 30
+#define BLACK_H_LINE_AVERAGE 25
 #define BLUE_LINE_AVERAGE 60
-#define COEFF_MEAN_RED 0.9
+#define COEFF_MEAN_RED 0.8
 
 /*===========================================================================*/
 /* Module local variables.                                                   */
@@ -103,13 +104,13 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 
 		//sets the value of "horizontal_line" if a black horizontal line is found
-		check_black_h_line(image_red);
+		check_black_h_line(image_red,image_blue);
 
 
 		if(send_to_computer){
 
 			//sends to the computer the image
-			//SendUint8ToComputer(image_blue, IMAGE_BUFFER_SIZE);
+			//SendUint8ToComputer(image_red, IMAGE_BUFFER_SIZE);
 		}
 
 		//invert the bool
@@ -121,12 +122,14 @@ static THD_FUNCTION(ProcessImage, arg) {
 /* Module functions.	                                                     */
 /*===========================================================================*/
 
-/** @brief	Uses the buffer computed by the image processing to
+/** @brief	Uses the buffer computed by the image processing to extract the first and
+ * 			the last pixels of the black line used after to spot the red line
+ * 			Also extracts the middle position of the line to the variable "line_position"
  *
- *  @return	Returns 1 if there is a line extracted from the image buffer given
- * 			Returns 0 if line not found
+ *  @return	none
+ *
  */
-uint16_t extract_line(uint8_t *buffer){
+void extract_line(uint8_t *buffer){
 
 	uint16_t i = 0;
 	uint8_t stop = 0, wrong_line = 0, line_not_found = 0;
@@ -201,7 +204,7 @@ uint16_t extract_line(uint8_t *buffer){
 
 	}
 
-	return line_not_found;
+
 }
 
 
@@ -211,8 +214,8 @@ uint16_t get_line_position(void){
 }
 
 void process_image_start(void){
-	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
-	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
+	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO+1, ProcessImage, NULL);
+	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO+1, CaptureImage, NULL);
 }
 
 _Bool get_red_stop(void){
@@ -236,7 +239,8 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 	uint16_t mean_red = 0;
 	uint32_t mean_line_red = 0;
 	uint32_t mean_line_blue = 0;
-	int line_not_found = extract_line(blue_image);
+	//updates the values of the first and the last pixels of the black line
+	 extract_line(blue_image);
 	uint16_t begin_line = begin;
 	uint16_t end_line = end;
 
@@ -265,20 +269,28 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 	}
 }
 
-void check_black_h_line(uint8_t *red_image){
+void check_black_h_line(uint8_t *image_red,uint8_t *image_blue){
 
-	uint16_t mean  = 0;
-
+	uint16_t mean_red  = 0;
+	uint16_t mean_blue  = 0;
 	//computes the mean of the overall red intensity
 	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 
-			mean += red_image[i];
+			mean_red += image_red[i];
 	}
-	mean /= IMAGE_BUFFER_SIZE;
+	mean_red /= IMAGE_BUFFER_SIZE;
+
+	//computes the mean of the overall blue intensity
+		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+
+				mean_blue += image_blue[i];
+		}
+		mean_blue /= IMAGE_BUFFER_SIZE;
+
 
 	//enters the if when a black horizontal line is spotted
 	//meaning that the robot found the continuity of the path
-	if (mean < BLACK_H_LINE_AVERAGE){
+	if (mean_red < BLACK_H_LINE_AVERAGE && mean_blue < BLACK_H_LINE_AVERAGE){
 
 		horizontal_line = 1;
 	}

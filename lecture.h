@@ -7,7 +7,7 @@
 #define LECTURE_H_
 
 // module header
-#include main.h
+#include <constants.h>
 
 
 /*===========================================================================*/
