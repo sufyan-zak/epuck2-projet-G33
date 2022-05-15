@@ -8,20 +8,17 @@
 #ifndef PID_REGULATOR_H_
 #define PID_REGULATOR_H_
 
+//standard C headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+//e-puck2 main processor headers
 #include <motors.h>
 
-#define KD_PID 0.5
-#define KI_PID 0.05
-#define KP_PID 0.7
-#define S_TIME_PID       0.01
-#define S_FILTER_PID 5*S_TIME_PID
-#define ERROR_THRESHOLD			0.1f
-#define SUM_ERROR_DIVISION 3.5
-#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/SUM_ERROR_DIVISION)
-
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 /**
  * @brief			the following function calculates the speed correction given
  * 					a distance and a goal distance using a PID regulator

@@ -6,9 +6,9 @@
 #ifndef LECTURE_H_
 #define LECTURE_H_
 
-
-
-
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 /**
  * @brief :		Creates the city by initializing every node and its links with
  * 				other nodes.

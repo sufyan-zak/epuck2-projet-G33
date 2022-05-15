@@ -4,9 +4,13 @@
  * 			used in it.
  */
 
+// module headers
 #include <math.h>
 #include <noeud.h>
 
+/*===========================================================================*/
+/* Module functions.	                                                     */
+/*===========================================================================*/
 void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int d)
 {
 	for(int j = 0 ; j < NB_NODES ; ++j) {

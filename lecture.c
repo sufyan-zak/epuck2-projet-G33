@@ -2,26 +2,35 @@
  * @file    lecture.c
  * @brief   Calculates the shortest path when going and coming back from the END_NODE
  */
-
+ 
+// standard C headers
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 
-
+// module headers
 #include <city_initialisation.h>
 
+/*===========================================================================*/
+/* Module local variables.                                                   */
+/*===========================================================================*/
 static unsigned int size_path = 0;
 static int path[MAX_PATH_SIZE]= {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
+/*===========================================================================*/
+/* Module functions.	                                                     */
+/*===========================================================================*/
 void do_djikstra(uint8_t going_back) {
 
-		// This table is used in Dijkstra algorithm and is progressively updated. Closest nodes are the first nodes.
+		// This table is used in Dijkstra algorithm and is progressively updated. 
+		// Closest nodes are the first nodes.
 		int queue[NB_NODES] = {0};
 
 		if(!going_back){
 				dijkstra(queue,node_list,START_NODE);
 
-				for(struct Noeud* p = node_list[END_NODE] ; p->parent != no_link ; p = node_list[p->parent]) {
+				for(struct Noeud* p = node_list[END_NODE] ; p->parent != no_link ; 
+					p = node_list[p->parent]) {
 					path[size_path] = p->uid;
 
 					++size_path;
@@ -30,7 +39,8 @@ void do_djikstra(uint8_t going_back) {
 		}else if (going_back){
 				dijkstra(queue,node_list,END_NODE);
 				size_path =0;
-				for(struct Noeud* p = node_list[START_NODE] ; p->parent != no_link ; p = node_list[p->parent]) {
+				for(struct Noeud* p = node_list[START_NODE] ; p->parent != no_link ; 
+					p = node_list[p->parent]) {
 					path[size_path] = p->uid;
 					++size_path;
 				}

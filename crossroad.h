@@ -1,15 +1,20 @@
-/*
- * crossroad.h
+/**
+ * @file	crossroad.h
  *
- *  Created on: 9 mai 2022
- *      Author: Yassir Belguerch
+ * @brief	Functions declarations and constants used to give orientation/direction
+ * 			instructions to the robot
  */
 
 
 #ifndef CROSSROAD_H_
 #define CROSSROAD_H_
 
+// module header
 #include <main.h>
+
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 
 enum orientation{east, south, west, north};
 enum direction{start,right, left, forward, stop};

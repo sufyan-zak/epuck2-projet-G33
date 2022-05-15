@@ -15,13 +15,13 @@
 #include <chprintf.h>
 #include <usbcfg.h>
 
-
 //e-puck2 main processor headers
 #include <camera/po8030.h>
 
 //module headers
 #include <process_image.h>
 #include <main.h>
+
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
@@ -40,7 +40,6 @@ static _Bool horizontal_line = 0;
 static _Bool red_stop = 0;
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
-
 
 /*===========================================================================*/
 /* Module threads.	                                                         */
@@ -121,7 +120,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 /* Module functions.	                                                     */
 /*===========================================================================*/
 
-/* @brief Uses the buffer computed by the image processing to
+/** @brief Uses the buffer computed by the image processing to
  *
  * @return Returns 1 if there is a line extracted from the image buffer given
  * 		Returns 0 if line not found

@@ -8,8 +8,12 @@
 #ifndef NOEUD_H_
 #define NOEUD_H_
 
+// module headers
 #include <main.h>
 
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 #define no_link  -1
 #define infinite_time  100000000000
 #define default_speed 5.0
@@ -25,6 +29,10 @@ struct Noeud {
 	int in;					// Boolean value, either 0 (false) or 1 (true)
 	int parent;
 };
+
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 
 /**
  * @brief :		Dijkstra algorithm that calculates the shortest path.

@@ -1,9 +1,20 @@
+/**
+ * @file    process_image.h
+ * @brief   Prototype functions used in the image processing
+ *
+ */
+ 
 #ifndef PROCESS_IMAGE_H
 #define PROCESS_IMAGE_H
 
+// C standard libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 
 uint16_t get_line_position(void);
 void process_image_start(void);

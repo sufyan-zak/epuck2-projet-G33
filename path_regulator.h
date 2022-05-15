@@ -1,7 +1,20 @@
+/**
+ * @file    path_regulator.h
+ * @brief   declaration of functions responsible for switching between the different
+ * 			states of the robot(controlling the wheels and the LEDs),
+ * 			also responsible for the directions using the path
+ * 			calculated by Dijkstra
+ */
+
 #ifndef PATH_REGULATOR_H
 #define PATH_REGULATOR_H
 
+// module header
 #include <crossroad.h>
+
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 /**
  * @brief :		start the Path regulator thread
  *

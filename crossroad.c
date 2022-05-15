@@ -4,17 +4,19 @@
  *
  */
 
-//module headers
+// Module headers
+
 #include <motors_custom.h>
 #include <crossroad.h>
 #include <process_image.h>
 #include <main.h>
+
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
-#define CROSSROAD_IN_DIST 7 //distance to advance before turning at cross road
-#define CROSSROAD_OUT_DIST 3 //distance to advance before finding the black line after turning at the cross road
-#define CROSSROAD_FORWARD_DIST 8 //distance to advance when the instruction is to go forward
+#define CROSSROAD_IN_DIST 7 	// distance to advance before turning at cross road
+#define CROSSROAD_OUT_DIST 3	// distance to advance before finding the black line after turning at the cross road
+#define CROSSROAD_FORWARD_DIST 8 // distance to advance when the instruction is to go forward
 
 
 /*===========================================================================*/

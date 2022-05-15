@@ -6,20 +6,20 @@
  * 			calculated by Dijkstra
  */
 
-//standard C headers
+// standard C headers
 #include "ch.h"
 #include "hal.h"
 #include <math.h>
 #include <usbcfg.h>
 #include <chprintf.h>
 
-//e-puck2 main processor headers
+// e-puck2 main processor headers
 #include <leds.h>
 #include <motors_custom.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <sensors/proximity.h>
 
-//module headers
+// module headers
 #include <main.h>
 #include <pid_regulator.h>
 #include <crossroad.h>
@@ -36,6 +36,17 @@
 #define OBSTACLE_DIST 70
 #define SAFETY_DIST_IR_3 600
 #define SAFETY_DIST_IR_2 230
+#define TOF_OFFSET 50
+
+// Regulator constants
+	// Line follower	(P regulator)
+	#define KP_LINE 2
+	#define KI_LINE 0
+	#define KD_LINE 0
+	// Obstacle bypassing	(PID regulator)
+	#define KP_IR 0.15
+	#define KI_IR 0.025
+	#define KD_IR 0.15
 
 /*===========================================================================*/
 /* Module local variables.                                                   */
@@ -86,12 +97,13 @@ static THD_FUNCTION(PathRegulator, arg) {
 
 	while(1){
         time = chVTGetSystemTime();
-        uint16_t tof_distance = VL53L0X_get_dist_mm()-50;
+        uint16_t tof_distance = VL53L0X_get_dist_mm() - TOF_OFFSET;
         uint16_t IR3_distance = get_prox(6);
         uint16_t IR2_distance = get_prox(5);
 
         //computes a correction factor to let the robot rotate to be centered with the line
-        speed_correction_line = pid_regulator(get_line_position(),(IMAGE_BUFFER_SIZE/2), 2, 0, 0);
+        speed_correction_line = pid_regulator(get_line_position(),(IMAGE_BUFFER_SIZE/2), 
+											  KP_LINE, KI_LINE, KD_LINE);
 
         //enters one of the ifs according to the state of the robot
         if (tof_distance > OBSTACLE_DIST && current_state == free_path){
@@ -101,7 +113,7 @@ static THD_FUNCTION(PathRegulator, arg) {
 
 				//updates the direction to take for the red_stop
 				update_crossroad_instruction(node_path,get_size_path(),
-													&current_node, &current_orientation, &current_direction);
+											 &current_node, &current_orientation, &current_direction);
 
 				//prints the number of node the robot is headed using UART3 (Bluetooth)
 				chprintf((BaseSequentialStream *)&SD3, "Currently going to node  %d \n \r", current_node);
@@ -139,8 +151,8 @@ static THD_FUNCTION(PathRegulator, arg) {
      }
      else if (current_state == obstacle_around){
         //computes the correction factor to let the robot stay at a safety distance from the obstacle
-        speed_correction_obstacle_1 =  pid_regulator(IR3_distance,SAFETY_DIST_IR_3,0.15,0.025,0.15);
-        speed_correction_obstacle_2 =  pid_regulator(IR2_distance,SAFETY_DIST_IR_2,0.15,0.025,0.15);
+        speed_correction_obstacle_1 =  pid_regulator(IR3_distance,SAFETY_DIST_IR_3, KP_IR, KI_IR, KD_IR);
+        speed_correction_obstacle_2 =  pid_regulator(IR2_distance,SAFETY_DIST_IR_2, KP_IR, KI_IR, KD_IR);
 
         //operates the speed correction for both of the IR sensors
    		right_motor_set_speed(DEFAULT_SPEED_STEPS - speed_correction_obstacle_1 - speed_correction_obstacle_2);
@@ -168,7 +180,6 @@ static THD_FUNCTION(PathRegulator, arg) {
  * 		  of the robot
  *
  */
-
 static THD_WORKING_AREA(waLedToggle, 256);
 static THD_FUNCTION(LedToggle, arg) {
 	chRegSetThreadName(__FUNCTION__);

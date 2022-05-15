@@ -1,14 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/**
+ * @file    main.c
+ * @brief   This is the main file that controls other modules and initializes peripherals
+ */
 
-
+// standard C headers
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
 #include <main.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+// e-puck2 main processor headers
 #include <motors_custom.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <sensors/proximity.h>
@@ -16,6 +21,7 @@
 #include <chprintf.h>
 #include <spi_comm.h>
 
+// module headers
 #include <process_image.h>
 #include <path_regulator.h>
 
