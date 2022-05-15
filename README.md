@@ -1,5 +1,5 @@
 # City bot
-<img src="./e-puck.jpg"/>
+<img src="./titre_ov.png"/>
 
 A line follower delivery robot, done as part of "Embedded Systems and Robotics" course teached by Prof. Francesco Mondada, and assisted by Dr. Matthieu Broisin and Daniel Burnier.
 A mini-project by Sufyan Zakeeruddin and Yassir Belguerch, in 3rd year Bachelor of Microengineering at [EPFL](https://www.epfl.ch/).
