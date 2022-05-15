@@ -11,6 +11,24 @@
 /*===========================================================================*/
 /* Module functions.	                                                     */
 /*===========================================================================*/
+void dijkstra(int *queue, struct Noeud *tn[NB_NODES], unsigned int deb)
+{
+	init_queue(queue, tn, deb);
+	sort_queue(queue, tn);
+
+	unsigned int nd_min = 0;
+	unsigned int cmt_tab = 0;
+	while(cmt_tab < NB_NODES) {
+		nd_min = find_min_access(queue, tn);
+
+		tn[nd_min]->in = 0;
+		cmt_tab++;
+		unsigned int size_tab_liens = sizeof(tn[nd_min]->tab_liens)/sizeof(tn[nd_min]->tab_liens[0]);
+		recherche_voisins(queue, tn, nd_min, tn[nd_min], size_tab_liens);
+	}
+
+}
+
 void init_queue(int *queue,  struct Noeud *tn[NB_NODES], unsigned int d)
 {
 	for(int j = 0 ; j < NB_NODES ; ++j) {
@@ -64,26 +82,9 @@ unsigned int find_min_access(int *queue, struct Noeud *tn[NB_NODES])
 	return 0;
 }
 
-void dijkstra(int *queue, struct Noeud *tn[NB_NODES], unsigned int deb)
-{
-	init_queue(queue, tn, deb);
-	sort_queue(queue, tn);
-
-	unsigned int nd_min = 0;
-	unsigned int cmt_tab = 0;
-	while(cmt_tab < NB_NODES) {
-		nd_min = find_min_access(queue, tn);
-
-		tn[nd_min]->in = 0;
-		cmt_tab++;
-		unsigned int size_tab_liens = sizeof(tn[nd_min]->tab_liens)/sizeof(tn[nd_min]->tab_liens[0]);
-		recherche_voisins(queue, tn, nd_min, tn[nd_min], size_tab_liens);
-	}
-
-}
-
 //updates the values of neighbor nodes if they are closer
-void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, struct Noeud* nd, unsigned int size_tab_liens)
+void recherche_voisins(int *queue, struct Noeud *tn[NB_NODES], unsigned int nd_min, 
+						struct Noeud* nd, unsigned int size_tab_liens)
 {
 	float alt = 0;
 

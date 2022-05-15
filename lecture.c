@@ -38,7 +38,7 @@ void do_djikstra(uint8_t going_back) {
 				path[size_path] = node_list[START_NODE]->uid;
 		}else if (going_back){
 				dijkstra(queue,node_list,END_NODE);
-				size_path =0;
+				size_path = 0;
 				for(struct Noeud* p = node_list[START_NODE] ; p->parent != no_link ; 
 					p = node_list[p->parent]) {
 					path[size_path] = p->uid;

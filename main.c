@@ -49,8 +49,6 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
 
-
-
 int main(void)
 {
 	peripherals_init();

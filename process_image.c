@@ -27,6 +27,7 @@
 /*===========================================================================*/
 #define BLACK_H_LINE_AVERAGE 30
 #define BLUE_LINE_AVERAGE 60
+#define COEFF_MEAN_RED 0.9
 
 /*===========================================================================*/
 /* Module local variables.                                                   */
@@ -120,10 +121,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 /* Module functions.	                                                     */
 /*===========================================================================*/
 
-/** @brief Uses the buffer computed by the image processing to
+/** @brief	Uses the buffer computed by the image processing to
  *
- * @return Returns 1 if there is a line extracted from the image buffer given
- * 		Returns 0 if line not found
+ *  @return	Returns 1 if there is a line extracted from the image buffer given
+ * 			Returns 0 if line not found
  */
 uint16_t extract_line(uint8_t *buffer){
 
@@ -258,7 +259,8 @@ void check_red_stop(uint8_t *red_image,uint8_t *blue_image){
 
 	//enters the if only when a line is found, the red intensity mean of the line is higher
 	//than the overall mean, and the blue line mean is low
-	if(mean_line_red > mean_red*0.9  && mean_line_blue < BLUE_LINE_AVERAGE){
+	if( (mean_line_red > mean_red*COEFF_MEAN_RED) && (mean_line_blue < BLUE_LINE_AVERAGE) ){
+		
 		red_stop = 1;
 	}
 }
@@ -284,17 +286,17 @@ void check_black_h_line(uint8_t *red_image){
 
 _Bool get_horizontal_line(void){
 	if (horizontal_line) {
-		horizontal_line =0;
+		horizontal_line = 0;
 		return !horizontal_line;
 	}
 	return 0;
 }
 
 void reset_horizontal_line(void){
-	horizontal_line=0;
+	horizontal_line = 0;
 }
 
 void set_horizontal_line(void){
-	horizontal_line =1;
+	horizontal_line = 1;
 }
 

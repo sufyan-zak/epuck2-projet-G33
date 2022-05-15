@@ -8,7 +8,7 @@
 #ifndef NOEUD_H_
 #define NOEUD_H_
 
-// module headers
+// module header
 #include <main.h>
 
 /*===========================================================================*/
@@ -21,7 +21,7 @@
 struct Noeud {
 	int uid;
 
-	int tab_liens[5];			// if the number is != -1, it is a link. The number corresponds to the index in the matrix tn
+	int tab_liens[5];			// if the number is != -1, it is a link. The number corresponds to the UID of the neighbour node
 	float tab_liens_dist[5]; 	// corresponds to the distance to the correspondant node in tab_liens
 
 	// variables used in Dijkstra Algorithm

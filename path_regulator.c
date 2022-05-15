@@ -219,7 +219,7 @@ void reset_leds(void){
 
 
 void led_animation(enum state current_state, enum direction current_direction,
-													_Bool *sequence, uint8_t *color){
+					_Bool *sequence, uint8_t *color){
 
 	if (current_state==obstacle_around && !*sequence){
 				++*sequence;

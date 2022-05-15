@@ -1,9 +1,24 @@
-
+/**
+ * @file    motors_custom.c
+ * @brief   Declaration of functions used to control the wheels.
+ * 			Based on the library "motors.c"
+ *
+ */
+ 
 #ifndef MOTORS_CUSTOM_H_
 #define MOTORS_CUSTOM_H_
 
+/*===========================================================================*/
+/* Functions declaration.                                                    */
+/*===========================================================================*/
 
-void motor_advance_cm(float postion_r, float position_l , float speed_r , float speed_l );
+/**
+ * @brief :		advances an amount of cm (given by the first 2 parameters) at a given 
+ * 				speed (last 2 parameters)
+ *
+ * @return :	None
+ */
+void motor_advance_cm(float postion_r, float position_l , float speed_r , float speed_l);
 
 
 /**
@@ -25,8 +40,8 @@ void motor_turn_half_right(void);
 void motor_turn_half_left(void);
 
 /**
- * @brief :		movements when the robot reaches the end node and when it comes back to start node
- *
+ * @brief :		movements when the robot reaches the end node and when 
+ * 				it comes back to start node
  *
  *
  * @return :	None
@@ -34,8 +49,8 @@ void motor_turn_half_left(void);
 void motor_arrival_animation(void);
 
 /**
- * @brief :		movements to realign the wheels of the robot and face the black line to continue the path
- *
+ * @brief :		movements to realign the wheels of the robot and face the black line 
+ * 				to continue the path
  *
  *
  * @return :	None
