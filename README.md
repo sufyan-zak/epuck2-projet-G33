@@ -1,4 +1,4 @@
-# Delivery e-puck
+# City bot
 <img src="./e-puck.jpg"/>
 
 A line follower delivery robot, done as part of "Embedded Systems and Robotics" course teached by Prof. Francesco Mondada, and assisted by Dr. Matthieu Broisin and Daniel Burnier.
