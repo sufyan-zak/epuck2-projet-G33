@@ -13,5 +13,4 @@ The robot used is the [e-puck2](https://www.gctronic.com/doc/index.php/e-puck2).
 
 # Demos
 
-incoming
-
+Demo can be viewed online on youtube in the following link : https://youtu.be/aVkolE6jEYA [ADDED ON 21st MAY 2022]
